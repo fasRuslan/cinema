@@ -5,6 +5,7 @@ import {createFilmListTemplate} from "./view/film-list.js"
 import {createFooterStatisticTemplate} from "./view/footer-statistic.js"
 import {createCardFilmTemplate} from "./view/film-card.js"
 import {createLoadMoreButtonTemplate} from "./view/load-more.js"
+import {createPopupTemplate} from "./view/popup.js"
 
 
 const FILM_COUNT = 5;
@@ -33,28 +34,31 @@ render(siteFooterStatistics,createFooterStatisticTemplate(),'beforeend');
 
 //!Рендерим внутренние элементы на странице
 
+
 //*Основной список фильмов
-const filmList = document.querySelector('.js-film-list-main');
+const filmList = siteMainElement.querySelector('.js-film-list-main');
 //*Рейтинговый список фильмов
-const filmListRated = document.querySelector('.js-film-list-raited');
+const filmListRated = siteMainElement.querySelector('.js-film-list-raited');
 // *Самый комментируемый список фильмов
-const filmListCommented = document.querySelector('.js-film-list-commented');
-
-
-for (let i = 0; i < FILM_RATED_COUNT; i++){
-    render(filmListRated,createCardFilmTemplate(), 'beforeend');
-};
-
-for (let i = 0; i < FILM_COMMENT_COUNT; i++){
-    render(filmListCommented,createCardFilmTemplate(), 'beforeend');
-};
+const filmListCommented = siteMainElement.querySelector('.js-film-list-commented');
 
 
 for (let i = 0; i < FILM_COUNT; i++){
     render(filmList,createCardFilmTemplate(), 'beforeend');
 };
 
-// *Кнопка загрузить больше
-render(filmList,createLoadMoreButtonTemplate(),'beforeend')
+for (let i = 0; i < FILM_RATED_COUNT; i++){
+    render(filmListRated,createCardFilmTemplate(), 'beforeend');
+};
 
+
+for (let i = 0; i < FILM_COMMENT_COUNT; i++){
+    render(filmListCommented,createCardFilmTemplate(), 'beforeend');
+};
+
+// *Общий список фильмов
+const filmsContainer = siteMainElement.querySelector('.films-list');
+
+// *Кнопка загрузить больше
+render(filmsContainer,createLoadMoreButtonTemplate(),'beforeend');
 
