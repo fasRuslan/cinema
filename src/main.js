@@ -1,3 +1,13 @@
+// ?Добавить nanoid
+// ?Добавить открытие popup
+// ?Добавить комментарии 
+// ?Комментарии дата, текст, смайлик отдельный файл
+
+import dayjs from "dayjs"
+
+let date = dayjs()
+
+console.log(date.add(1,'day').toDate());
 // !Импортируем компоненты из markup
 import {createMenuTemplate} from "./view/site-menu.js"
 import {createSortPanel} from "./view/sort-panel.js"
@@ -6,11 +16,15 @@ import {createFooterStatisticTemplate} from "./view/footer-statistic.js"
 import {createCardFilmTemplate} from "./view/film-card.js"
 import {createLoadMoreButtonTemplate} from "./view/load-more.js"
 import {createPopupTemplate} from "./view/popup.js"
-
+// !Импортируем моки
+import {dataFilmCard} from "./mock/film-card.js"
 
 const FILM_COUNT = 5;
 const FILM_RATED_COUNT = 2;
 const FILM_COMMENT_COUNT = 2;
+
+
+const film = new Array(FILM_COUNT).fill().map(dataFilmCard)
 
 
 //!Обьявляем функцию рендеринга в которой параметрами принимаем 
@@ -44,16 +58,16 @@ const filmListCommented = siteMainElement.querySelector('.js-film-list-commented
 
 
 for (let i = 0; i < FILM_COUNT; i++){
-    render(filmList,createCardFilmTemplate(), 'beforeend');
+    render(filmList,createCardFilmTemplate(film[i]), 'beforeend');
 };
 
 for (let i = 0; i < FILM_RATED_COUNT; i++){
-    render(filmListRated,createCardFilmTemplate(), 'beforeend');
+    render(filmListRated,createCardFilmTemplate(film[i]), 'beforeend');
 };
 
 
 for (let i = 0; i < FILM_COMMENT_COUNT; i++){
-    render(filmListCommented,createCardFilmTemplate(), 'beforeend');
+    render(filmListCommented,createCardFilmTemplate(film[i]), 'beforeend');
 };
 
 // *Общий список фильмов
@@ -61,4 +75,3 @@ const filmsContainer = siteMainElement.querySelector('.films-list');
 
 // *Кнопка загрузить больше
 render(filmsContainer,createLoadMoreButtonTemplate(),'beforeend');
-
