@@ -1,13 +1,7 @@
-// ?Добавить nanoid
 // ?Добавить открытие popup
 // ?Добавить комментарии 
 // ?Комментарии дата, текст, смайлик отдельный файл
 
-import dayjs from "dayjs"
-
-let date = dayjs()
-
-console.log(date.add(1,'day').toDate());
 // !Импортируем компоненты из markup
 import {createMenuTemplate} from "./view/site-menu.js"
 import {createSortPanel} from "./view/sort-panel.js"
@@ -45,10 +39,9 @@ render(siteMainElement, createMenuTemplate(), 'beforeend');
 render(siteMainElement, createSortPanel(), 'beforeend');
 render(siteMainElement,createFilmListTemplate(),'beforeend');
 render(siteFooterStatistics,createFooterStatisticTemplate(),'beforeend');
+render(siteFooterStatistics,createPopupTemplate(film[0]),'beforeend');
 
 //!Рендерим внутренние элементы на странице
-
-
 //*Основной список фильмов
 const filmList = siteMainElement.querySelector('.js-film-list-main');
 //*Рейтинговый список фильмов
@@ -70,8 +63,12 @@ for (let i = 0; i < FILM_COMMENT_COUNT; i++){
     render(filmListCommented,createCardFilmTemplate(film[i]), 'beforeend');
 };
 
+// !Добавляем кнопку загрузить больше
 // *Общий список фильмов
 const filmsContainer = siteMainElement.querySelector('.films-list');
 
 // *Кнопка загрузить больше
 render(filmsContainer,createLoadMoreButtonTemplate(),'beforeend');
+
+// !Добавляем открытие popup
+

@@ -1,40 +1,44 @@
-// Назавание - объект
-// Рейтинг - генерируется функцией случайного числа
-// Год - генерируется функцией случайного числа
-// Продолжительность - генерируется функцией случайного числа
-// Жанр - массив
-// Описание - объект
-
 import dayjs from "dayjs"
+import {nanoid} from "nanoid"
+import{getRandomInteger} from "./random.js"
+// TODO Год для детального попапа
+// *оригинальное название 
+// Director
+// Writers
+// Actors
+// Release Date
+// Country
+// Полный комментарий
+
 // !Общая информация
 
 const generateFilmInfo = () => {
 
     const filmInfo = [
     {
-            filmName:"The Dance of Life",
+            title:"The Dance of Life",
+            originalTitle:"The Dance of Life",
             filmPicture:"the-dance-of-life.jpg",
-            filmDescription:"Burlesque comic Ralph 'Skid' Johnson (Skelly), and specialty dancer Bonny Lee King (Carroll), end up together on a cold, rainy night at a tr…",
     },
     {
-            filmName:"Sagebrush Trail",
+            title:"Sagebrush Trail",
+            originalTitle:"Sagebrush Trail",
             filmPicture:"sagebrush-trail.jpg",
-            filmDescription:"Sentenced for a murder he did not commit, John Brant escapes from prison determined to find the real killer. By chance Brant's narrow escap…",
     },
     {
-            filmName:"The Man with the Golden Arm",
+            title:"The Man with the Golden Arm",
+            originalTitle:"The Man with the Golden Arm",
             filmPicture:"made-for-each-other.png",
-            filmDescription:"Frankie Machine (Frank Sinatra) is released from the federal Narcotic Farm in Lexington, Kentucky with a set of drums and a new outlook on…",
     },
     {
-            filmName:"Santa Claus Conquers the Martians",
+            title:"Santa Claus Conquers the Martians",
+            originalTitle:"Santa Claus Conquers the Martians",
             filmPicture:"santa-claus-conquers-the-martians.jpg  ",
-            filmDescription:"The Martians Momar 'Mom Martian' and Kimar 'King Martian' are worried that their children Girmar 'Girl Martian' and Bomar 'Boy Marti…'",
     },
     {
-            filmName:"Popeye the Sailor Meets Sindbad the Sailor",
+            title:"Popeye the Sailor Meets Sindbad the Sailor",
+            originalTitle:"Popeye the Sailor Meets Sindbad the Sailor",
             filmPicture:"popeye-meets-sinbad.png",
-            filmDescription:"In this short, Sindbad the Sailor (presumably Bluto playing a 'role') proclaims himself, in song, to be the greatest sailor, adventurer and…",
     }
     ];
     const getRandomIndex = getRandomInteger(1,filmInfo.length - 1);
@@ -42,16 +46,7 @@ const generateFilmInfo = () => {
     return  filmInfo[getRandomIndex];
 };
 
-// !Жанр
-const getRandomInteger = (a = 0, b = 1) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
-
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
-
-const generateGenre = () => {
-
+// !Genre
     const genres = [
     "Musica",
     "Western",
@@ -59,6 +54,25 @@ const generateGenre = () => {
     "Comedy",
     "Cartoon",
 ];
+
+// !Director
+  const director = [
+    `Anthony Mann`,
+    `Christopher Jonathan`,
+    `Steven Spielberg`,
+    `Martin Scorsese`,
+    `Alfred Hitchcock`,
+  ];
+
+// !Писатели
+  const writers = [
+    `Билли Уайлдер`,
+    `Итан и Джоэл Коэны`,
+    `Роберт Таун`,
+    `Квентин Тарантино`,
+    `Френсис Форд Коппола`,
+  ];
+const generateGenre = () => {
 
     const randomIndex = getRandomInteger(0,genres.length - 1);
 
@@ -104,23 +118,96 @@ const generateFilmComments = () => {
     return digits + ` ` + `comments`;
 }
 
+// !Актеры
+  const actors = [
+    `Alan Rickman`,
+    `Benedict Cumberbatch`,
+    `Benicio del Toro`,
+    `Vincent Cassel`,
+    `Viggo Mortensen`,
+  ];
+
+
+//   !Страны
+    const countries = [
+    `USA`,
+    `Great Britain`,
+    `Canada`,
+    `France`,
+    `Russia`,
+  ];
+
+const choise = (arr,n) => {
+    const randomIndex = getRandomInteger(0,arr.length - 1);
+
+    return new Array(n).fill(arr[randomIndex]);
+}
+// !Полная дата
+
+    const generateFullTextDate = () => {
+
+        const month = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+        
+
+        const getRandomFullDate = dayjs().add(getRandomInteger(-100,-10),'year').add(getRandomInteger(-10,0),'month').add(getRandomInteger(1,30),'day').format('YYYY-M-D');
+
+        const arrFullDate = getRandomFullDate.split(`-`)//Получаем полный массив
+
+        const randomMonth = getRandomFullDate.split('-')[1];
+
+        const currentTextMonth = month[randomMonth - 1];
+
+         arrFullDate.splice(1,1,currentTextMonth);
+
+        return arrFullDate.join(' ');
+        
+    };
+
+// !Генерация описания
+const generateFilmDescription = () => {
+    const description = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra.Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
+     
+    const descriptionArr = description.split(". ");
+
+    const randomDescription = new Set();
+
+    for (let index = 0; index < descriptionArr.length; index++) {
+        randomDescription.add(descriptionArr[getRandomInteger(0,descriptionArr.length - 1)]);   
+    }
+
+    const randomTextDescription = Array.from(randomDescription).toString();
+
+    return randomTextDescription;
+        
+};
+
+
+
+
 
 // !Данные для отправки
 export const dataFilmCard = () => {
     return  {
-    filmName:generateFilmInfo().filmName,
-    filmDescription:generateFilmInfo().filmDescription,
+    id:nanoid(),
+    title:generateFilmInfo().title,
+    originalTitle:generateFilmInfo().originalTitle,
+    filmDescription:generateFilmDescription(),
     filmPicture:generateFilmInfo().filmPicture,
     genre:generateGenre(),
     rating:getRandomRaiting(1,9),
-    time:generateTime(),
+    runTime:generateTime(),
     relase:generateFilmYearRelase(),
     comments:generateFilmComments(),
     repeating:{
         isWatсhList:Boolean(getRandomInteger(0,1)),
         isWatched:Boolean(getRandomInteger(0,1)),
         isFavorite: Boolean(getRandomInteger(0,1))
-        }
+        },
+    director:choise(director,1),
+    writers : choise(director,3),
+    actors : choise(actors,2),
+    fullDate: generateFullTextDate(),
+    countries: choise(director,2),
     }
 };
 
