@@ -1,6 +1,3 @@
-// ?Добавить открытие popup
-// ?Добавить комментарии 
-// ?Комментарии дата, текст, смайлик отдельный файл
 // !import markup
 import {createMenuTemplate} from "./view/site-menu.js"
 import {createSortPanel} from "./view/sort-panel.js"
@@ -42,10 +39,11 @@ const filmListRated = siteMainElement.querySelector('.js-film-list-raited');
 // *Самый комментируемый список фильмов
 const filmListCommented = siteMainElement.querySelector('.js-film-list-commented');
 
-
 for (let i = 0; i < FILM_COUNT; i++){
     render(filmList,createCardFilmTemplate(films[i]), 'beforeend');
 };
+
+
 
 for (let i = 0; i < FILM_RATED_COUNT; i++){
     render(filmListRated,createCardFilmTemplate(films[i]), 'beforeend');
@@ -62,6 +60,18 @@ const filmsContainer = siteMainElement.querySelector('.films-list');
 
 // *Кнопка загрузить больше
 render(filmsContainer,createLoadMoreButtonTemplate(),'beforeend');
+
+const loadMore = filmsContainer.querySelector('.js-films-list__show-more')
+
+const loadMoreFilms = (button) => {
+    button.addEventListener(`click`,() => {
+    for (let i = 0; i < FILM_COUNT; i++){
+    render(filmList,createCardFilmTemplate(films[i]), 'beforeend');
+        };
+    });
+};
+
+loadMoreFilms(loadMore);
 
 // !Добавляем открытие popup
 
