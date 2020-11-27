@@ -1,14 +1,9 @@
+// !import utils
+import {getRandomInteger} from '../utils.js'
+
 import dayjs from "dayjs"
 import {nanoid} from "nanoid"
-import{getRandomInteger} from "./random.js"
-// TODO Год для детального попапа
-// *оригинальное название 
-// Director
-// Writers
-// Actors
-// Release Date
-// Country
-// Полный комментарий
+import{generateMockComments} from "./comments.js"
 
 // !Общая информация
 
@@ -138,21 +133,16 @@ const generateFilmComments = () => {
   ];
 
 const choise = (arr,n) => {
-    const randomIndex = getRandomInteger(0,arr.length - 1);
-
-    return new Array(n).fill(arr[randomIndex]);
+    return new Array(n).fill(null).map(() => arr[getRandomInteger(0,arr.length - 1)]);
 }
 // !Полная дата
 
     const generateFullTextDate = () => {
-
         const month = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-        
 
-        const getRandomFullDate = dayjs().add(getRandomInteger(-100,-10),'year').add(getRandomInteger(-10,0),'month').add(getRandomInteger(1,30),'day').format('YYYY-M-D');
-
+        const getRandomFullDate = dayjs().add(getRandomInteger(-100,-10),'year').add(getRandomInteger(-10,0),'month').add(getRandomInteger(1,30),'day').format('YYYY-MM-D');
+        console.log(getRandomFullDate)
         const arrFullDate = getRandomFullDate.split(`-`)//Получаем полный массив
-
         const randomMonth = getRandomFullDate.split('-')[1];
 
         const currentTextMonth = month[randomMonth - 1];
@@ -197,17 +187,18 @@ export const dataFilmCard = () => {
     rating:getRandomRaiting(1,9),
     runTime:generateTime(),
     relase:generateFilmYearRelase(),
-    comments:generateFilmComments(),
+    numberOfComments:generateFilmComments(),
     repeating:{
         isWatсhList:Boolean(getRandomInteger(0,1)),
         isWatched:Boolean(getRandomInteger(0,1)),
         isFavorite: Boolean(getRandomInteger(0,1))
         },
     director:choise(director,1),
-    writers : choise(director,3),
+    writers : choise(director,getRandomInteger(1,3)),
     actors : choise(actors,2),
     fullDate: generateFullTextDate(),
     countries: choise(director,2),
+    comments: generateMockComments()
     }
 };
 
