@@ -30,6 +30,7 @@ export const createCommentsTemplate = (comments) => {
           return `sleeping.png`
             break;
     }
+    return null;
   }
 
     return `<ul class="film-details__comments-list">
@@ -46,44 +47,45 @@ export const createCommentsTemplate = (comments) => {
               </p>
             </div>
           </li>
-          <li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-sleeping">
-            </span>
-            <div>
-              <p class="film-details__comment-text">${text}</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${author}</span>
-                <span class="film-details__comment-day">2 days ago</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>
-          </li>
-          <li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-puke">
-            </span>
-            <div>
-              <p class="film-details__comment-text">${text}</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${author}</span>
-                <span class="film-details__comment-day">2 days ago</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>
-          </li>
-          <li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-angry">
-            </span>
-            <div>
-              <p class="film-details__comment-text">${text}</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${author}</span>
-                <span class="film-details__comment-day">Today</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>
-          </li>
-        </ul>`
+          <ul>`
+          // <li class="film-details__comment">
+          //   <span class="film-details__comment-emoji">
+          //     <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-sleeping">
+          //   </span>
+          //   <div>
+          //     <p class="film-details__comment-text">${text}</p>
+          //     <p class="film-details__comment-info">
+          //       <span class="film-details__comment-author">${author}</span>
+          //       <span class="film-details__comment-day">2 days ago</span>
+          //       <button class="film-details__comment-delete">Delete</button>
+          //     </p>
+          //   </div>
+          // </li>
+        //   <li class="film-details__comment">
+        //     <span class="film-details__comment-emoji">
+        //       <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-puke">
+        //     </span>
+        //     <div>
+        //       <p class="film-details__comment-text">${text}</p>
+        //       <p class="film-details__comment-info">
+        //         <span class="film-details__comment-author">${author}</span>
+        //         <span class="film-details__comment-day">2 days ago</span>
+        //         <button class="film-details__comment-delete">Delete</button>
+        //       </p>
+        //     </div>
+        //   </li>
+        //   <li class="film-details__comment">
+        //     <span class="film-details__comment-emoji">
+        //       <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-angry">
+        //     </span>
+        //     <div>
+        //       <p class="film-details__comment-text">${text}</p>
+        //       <p class="film-details__comment-info">
+        //         <span class="film-details__comment-author">${author}</span>
+        //         <span class="film-details__comment-day">Today</span>
+        //         <button class="film-details__comment-delete">Delete</button>
+        //       </p>
+        //     </div>
+        //   </li>
+        // </ul>`
 };

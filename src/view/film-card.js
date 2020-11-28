@@ -14,6 +14,12 @@ export const createCardFilmTemplate = (film) => {
     return (isFavorite)?`film-card__controls-item--active`:``
   };
 
+  const limitFilmDescription = (filmDescription,n) => {
+
+    return  (filmDescription.length < n) ? filmDescription : filmDescription.substring(0,149) + `...`
+  
+  }
+
     return `<article class="film-card js-open-popup" id=${id}>
           <h3 class="film-card__title">${title}</h3>
           <p class="film-card__rating">${rating}</p>
@@ -23,7 +29,7 @@ export const createCardFilmTemplate = (film) => {
             <span class="film-card__genre">'${genre}'</span>
           </p>
           <img src="./images/posters/${filmPicture}" alt="" class="film-card__poster">
-          <p class="film-card__description">${filmDescription}</p>
+          <p class="film-card__description">${limitFilmDescription(filmDescription,149)}</p>
           <a class="film-card__comments">${numberOfComments}</a>
           <div class="film-card__controls">
             <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist ${isWatchedListButton()}" type="button">Add to watchlist</button>
