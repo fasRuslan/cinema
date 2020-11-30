@@ -141,7 +141,6 @@ const choise = (arr,n) => {
         const month = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
         const getRandomFullDate = dayjs().add(getRandomInteger(-100,-10),'year').add(getRandomInteger(-10,0),'month').add(getRandomInteger(1,30),'day').format('YYYY-MM-D');
-        console.log(getRandomFullDate)
         const arrFullDate = getRandomFullDate.split(`-`)//Получаем полный массив
         const randomMonth = getRandomFullDate.split('-')[1];
 

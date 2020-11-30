@@ -1,4 +1,5 @@
 import {createCommentsTemplate} from "./comments.js"
+import Abstract from '../abstract.js'
 
 export const createPopupTemplate = (film) => {
 
@@ -119,4 +120,17 @@ export const createPopupTemplate = (film) => {
     </div>
   </form>
 </section>`
+};
+
+
+export default class Popup extends Abstract{
+
+  constructor(film){
+    super();
+    this._film = film;
+  }
+
+  getTemplate(){
+    return createPopupTemplate(this._film);
+  }
 };
