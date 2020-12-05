@@ -1,3 +1,5 @@
+import Abstract from "./abstract";
+
 export const createFilmListTemplate = () => {
     return `<section class="films">
     <section class="films-list">
@@ -20,3 +22,10 @@ export const createFilmListTemplate = () => {
       </section>
       </section>`
 };
+
+export default class FilmList extends Abstract{
+
+  getTemplate(){
+    return createFilmListTemplate();
+  }
+}

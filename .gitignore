@@ -17,3 +17,9 @@ public/bundle.js.map
 
 # Карта
 Cinema.xmind
+
+# Дебаг
+debug.log
+
+# vscode
+.vscode
