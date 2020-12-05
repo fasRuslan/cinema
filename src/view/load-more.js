@@ -7,6 +7,9 @@ export const createLoadMoreButtonTemplate = () => {
 
 
 export default class LoadMore extends Abstract{
+    constructor(){
+        super();
+    }
     getTemplate(){
         return createLoadMoreButtonTemplate();
     }

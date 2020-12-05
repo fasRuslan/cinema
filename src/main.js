@@ -73,6 +73,7 @@ const sortPanel = new SortPanel();
 const filmsList = new FilmList();
 const footerStatistic = new FooterStatistic(); 
 const loadMore = new LoadMore();
+const emptyList = new EmptyList();
 
 
 //  Рендерим основные элементы на странице
@@ -88,6 +89,15 @@ render(siteFooterStatistics, footerStatistic.getElement(), RenderPosition.BEFORE
 
 
 
+// !-------------------Внутренние элементы---------------------- //
+const filmsContainer = document.querySelector('.films-list'); //Контейнер для отрисовки кнопки;
+
+
+
+// !-------------------Внутренние элементы---------------------- //
+
+
+
 // !-------------------Работа с внутренними элементами на странице---------------------- //
 
 // TODO Сделать класс list-empty который будет возвращать пустую разметку если не будет карточек, если карточки будут рендерить их количество 
@@ -99,7 +109,7 @@ if(films.length > 0){
 for (let i = 0; i < FILM_COUNT; i++){
    render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
 };
-const filmsContainer = siteMainElement.querySelector('.films-list');
+
 render(filmsContainer, loadMore.getElement(),RenderPosition.BEFOREEND);
 //*Рейтинговый список фильмов
 const filmListRated = siteMainElement.querySelector('.js-film-list-raited');
@@ -113,7 +123,19 @@ for (let i = 0; i < FILM_COMMENT_COUNT; i++){
 };
 } else{
     loadMore.removeElement()
-    render(siteMainElement, new EmptyList().getElement(), RenderPosition.BEFOREEND)
+    render(siteMainElement, emptyList.getElement(), RenderPosition.BEFOREEND)
+}
+
+
+if (filteredFilms.length >= FILM_COUNT) {
+    let renderFilmsCount = FILM_COUNT;
+    render(filmsContainer, loadMore.getElement(),RenderPosition.BEFOREEND);
+
+    loadMore.getElement().addEventListener(`click`,function () {
+        for (let i = 0; i < FILM_COUNT; i++){
+    render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
+        };
+    })
 }
 
 // Проблемы с кнопкой
@@ -127,24 +149,8 @@ for (let i = 0; i < FILM_COMMENT_COUNT; i++){
 
 
 
-// !-------------------Работа с кнопкой---------------------- //
+// !-------------------Работа с сортировкой в меню и панелью управления---------------------- //
 // *Общий список фильмов
-// *Кнопка загрузить больше
-// render(filmsContainer, loadMore.getElement(),RenderPosition.BEFOREEND);
-
-const loadMoreButton = filmsContainer.querySelector('.js-films-list__show-more')
-
-const loadMoreFilms = (button) => {
-    button.addEventListener(`click`,() => {
-    for (let i = 0; i < FILM_COUNT; i++){
-    render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
-        };
-    });
-};
-
-loadMoreFilms(loadMoreButton);
-
-// 
 const menuButton = siteBody.querySelectorAll('.main-navigation__item') ; 
 
 for (let button of menuButton){
@@ -175,9 +181,6 @@ for (let button of menuButton){
     });
 }
 
-// TODO Сделать сортировку так же константа собрать все кнопки в сорт панели удаляем активный клас находим датаатрибут и ставим если по дефолту то filtered лист filteredFilms
-// TODO Берем дата атрибут и передаем в функцию compare для сортировки
-// !Сортировка по датам
 const sortPanelBattonAll = document.querySelectorAll('.sort__button');
 
 for (let sortPanelButton of sortPanelBattonAll){
@@ -203,18 +206,7 @@ for (let sortPanelButton of sortPanelBattonAll){
 });
 }
 
-
-
-// Функция добавления карточек для кнопки
-// const renderFilmCard = (container,filmData) => {
-//     const card = new FilmCard(filmData);
-//     render(container, card.getElement(), RenderPosition.BEFOREEND);
-//     card.getElement().addEventListener(`click`,() => showPopup(filmData));
-// }
-
-// renderFilmCard(filmList,films)
-
-// !-------------------Работа с кнопкой---------------------- //
+// !-------------------Работа с сортировкой и панелью управления---------------------- //
 
 
 
