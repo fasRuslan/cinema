@@ -1,16 +1,9 @@
 // TODO refactoring commentsTime
+import dayjs from 'dayjs'
 export const createCommentsTemplate = (comments) => {
 
     const {id,info:{text,author,emotion},commentsTime} = comments;
 
-    const getRandomCommentsTime = (date) => {
-      const currentFullYear = date.getFullYear();
-      const currentMonth = date.getMonth();
-      const currentDate = date.getDate();
-      const currentHours = date.getHours();
-      const currentMinutes = date.getMinutes();
-      return currentFullYear + `/` + currentMonth + `/` + currentDate + ` ` + currentHours + `:` + currentMinutes;
-  }
 
   const emoji = (emotion) => {
     switch(emotion){
@@ -42,7 +35,7 @@ export const createCommentsTemplate = (comments) => {
               <p class="film-details__comment-text">${text}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${author}</span>
-                <span class="film-details__comment-day">${getRandomCommentsTime(commentsTime)}</span>
+                <span class="film-details__comment-day">${dayjs(commentsTime).format(`YYYY/MM/DD HH:mm`)}</span>
                 <button class="film-details__comment-delete">Delete</button>
               </p>
             </div>

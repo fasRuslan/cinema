@@ -1,7 +1,7 @@
 import {createCommentsTemplate} from "./comments.js"
 import Abstract from '../abstract.js'
 
-export const createPopupTemplate = (film) => {
+export const createPopupTemplate = (film = {}) => {
 
   const {id,title,originalTitle,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{isWatсhList,isWatched,isFavorite},comments,director,writers,actors,fullDate,countries} = film;
 
