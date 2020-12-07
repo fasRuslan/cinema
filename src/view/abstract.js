@@ -6,6 +6,7 @@ export default class Abstract {
             throw new Error(`Can't instance Abstract, only concret one.`)
         }
         this._element = null;
+        this._callback = {};
     }
 
     getTemplate(){
@@ -18,6 +19,11 @@ export default class Abstract {
         }
         return this._element
     }
+
+     _clickHandler(evt){
+    evt.preventDefault();
+    this._callback.click(evt);
+  }
 
     removeElement(){
         this._element = null; 

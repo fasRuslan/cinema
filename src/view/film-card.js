@@ -2,7 +2,7 @@ import Abstract from './abstract.js'
 
 export const createCardFilmTemplate = (film) => {
 
-  const {id,title,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{isWatсhList,isWatched,isFavorite},numberOfComments} = film;  
+  const {id,title,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{isWatсhList,isWatched,isFavorite},numberOfComments} = film; 
 
   const isWatchedListButton = () => {
     return (isWatсhList)?`film-card__controls-item--active`:``
