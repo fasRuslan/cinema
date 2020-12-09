@@ -9,7 +9,12 @@
 // import классов
 import SiteMenu from './view/site-menu.js'
 import SortPanel from './view/sort-panel.js'
-import FilmList  from './view/film-list.js'
+
+import FilmTemplate  from './view/film-list/film-template.js'
+import GeneralFilms from './view/film-list/general-film-list.js'
+import CommentedFilms from './view/film-list/commented-film-list.js'
+import RatedFilms from './view/film-list/rated-film-list.js'
+
 import FooterStatistic from './view/footer-statistic.js'
 import FilmCard from './view/film-card.js'
 import LoadMore from './view/load-more.js'
@@ -82,11 +87,6 @@ const filmsRated = () => {
 const filmsCommented = () => {
     return filteredFilms.filter(film => compareValues(`comments`,`asc`).slice(0,FILM_COMMENT_COUNT));
 }
-
-
-const menu = new SiteMenu(sortInfo);
-const sortPanel = new SortPanel();
-const filmsList = new FilmList();
 const footerStatistic = new FooterStatistic(); 
 const loadMore = new LoadMore();
 const emptyList = new EmptyList();
@@ -95,9 +95,35 @@ const emptyList = new EmptyList();
 
 
 //  Рендерим основные элементы на странице
-render(siteMainElement, menu.getElement(), RenderPosition.BEFOREEND);
-render(siteMainElement, sortPanel.getElement(), RenderPosition.BEFOREEND);
-render(siteMainElement, filmsList.getElement(), RenderPosition.BEFOREEND);
+const renderMenu = () => {
+    const menu = new SiteMenu(sortInfo);
+    const sortPanel = new SortPanel();
+
+    render(siteMainElement, menu.getElement(), RenderPosition.BEFOREEND);
+    render(siteMainElement, sortPanel.getElement(), RenderPosition.BEFOREEND);
+
+}
+const renderFilms = () => {
+    const filmTemplate = new FilmTemplate();
+    const generalFilms = new GeneralFilms();
+    const ratedFilms = new RatedFilms();
+    const commentedFilms = new CommentedFilms();
+
+    // console.log(filmTemplate.getDomElement())
+
+
+    render(siteMainElement, filmTemplate.getElement(), RenderPosition.BEFOREEND);
+    render(filmTemplate.getElement(),generalFilms.getElement(),RenderPosition.BEFOREEND);
+
+    render(filmTemplate.getElement(),ratedFilms.getElement(),RenderPosition.BEFOREEND);
+    render(filmTemplate.getElement(),commentedFilms.getElement(),RenderPosition.BEFOREEND);
+
+}
+renderMenu()
+renderFilms()
+
+
+
 render(siteFooterStatistics, footerStatistic.getElement(), RenderPosition.BEFOREEND);
 // !-------------------Работа с основными элементами на странице---------------------- //
 
@@ -108,11 +134,11 @@ const filmsContainer = document.querySelector('.films-list'); //Контейне
 
 
 //*Основной список фильмов
-const filmList = siteMainElement.querySelector('.js-film-list-main');
 
 
 if(films.length > 0){
     for (let i = 0; i < FILM_PER_PAGE; i++){
+    const filmList = siteMainElement.querySelector('.js-film-list-main');
     renderFilmCard(filmList,filteredFilms[i]);
     };
     //*Рейтинговый список фильмов
