@@ -133,4 +133,9 @@ export default class Popup extends Abstract{
   getTemplate(){
     return createPopupTemplate(this._film);
   }
+
+  setClickHandler(){
+    this._callback.click = callback;
+    this.getElement.querySelector
+  }
 };

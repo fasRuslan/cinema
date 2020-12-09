@@ -33,8 +33,8 @@ export default class SiteMenu extends Abstract {
     return createMenuTemplate(this._sortInfo);
   }
 
-  setActiveLink(){
-        this.getElement().querySelector('.main-navigation__item--active').classList.remove('.main-navigation__item--active');
+  removeActiveLink(){
+      this.getElement().querySelector('.main-navigation__item--active').classList.remove('main-navigation__item--active');
   }
 
   setClickHandler(callback){

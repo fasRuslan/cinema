@@ -2,6 +2,9 @@
 // TODO Разобрать добавление карточек реализованное в видео 1:14:55
 // TODO !element
 
+// !TODO доделать рендеринг с кнопкой функция на 140 строке  доделать надо сделать чтобы она пропадала 
+//TODO  
+
 // !-------------------Импорты---------------------- //
 // import классов
 import SiteMenu from './view/site-menu.js'
@@ -28,7 +31,8 @@ import {compareValues} from "./utils/compareValues.js"
 
 // !-------------------Счетчики---------------------- //
 // create film count
-const FILM_COUNT = 5;
+const FILM_COUNT = 10; //количество фильмов
+const FILM_PER_PAGE = 5
 const FILM_RATED_COUNT = 2;
 const FILM_COMMENT_COUNT = 2;
 // !-------------------Счетчики---------------------- //
@@ -67,7 +71,19 @@ const siteBody = document.querySelector('body')
 const siteMainElement = document.querySelector('.main');
 const siteFooterStatistics = document.querySelector('.footer__statistics');
 
-// TODO Добавить для классов конст и выводить через константу
+const renderFilmCard = (container,film) => {
+    const card = new FilmCard(film);
+    render(container,card.getElement(),RenderPosition.BEFOREEND);
+}
+const filmsRated = () => {
+    return filteredFilms.filter(film => compareValues(`ratind`,`asc`)).slice(0,FILM_RATED_COUNT);
+}   
+
+const filmsCommented = () => {
+    return filteredFilms.filter(film => compareValues(`comments`,`asc`).slice(0,FILM_COMMENT_COUNT));
+}
+
+
 const menu = new SiteMenu(sortInfo);
 const sortPanel = new SortPanel();
 const filmsList = new FilmList();
@@ -76,13 +92,6 @@ const loadMore = new LoadMore();
 const emptyList = new EmptyList();
 
 // Добавить ссылку для класса FilmListgit
-
-const men = new SiteMenu(sortInfo);
-
-men.setClickHandler(() => {
-    console.log(1)
-})
-
 
 
 //  Рендерим основные элементы на странице
@@ -94,20 +103,8 @@ render(siteFooterStatistics, footerStatistic.getElement(), RenderPosition.BEFORE
 
 
 
-
-
-
-
-// !-------------------Внутренние элементы---------------------- //
-const filmsContainer = document.querySelector('.films-list'); //Контейнер для отрисовки кнопки;
-
-
-
-// !-------------------Внутренние элементы---------------------- //
-
-
-
 // !-------------------Работа с внутренними элементами на странице---------------------- //
+const filmsContainer = document.querySelector('.films-list'); //Контейнер для отрисовки кнопки;
 
 
 //*Основной список фильмов
@@ -115,21 +112,19 @@ const filmList = siteMainElement.querySelector('.js-film-list-main');
 
 
 if(films.length > 0){
-for (let i = 0; i < FILM_COUNT; i++){
-   render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
-};
-
-render(filmsContainer, loadMore.getElement(),RenderPosition.BEFOREEND);
-//*Рейтинговый список фильмов
-const filmListRated = siteMainElement.querySelector('.js-film-list-raited');
-for (let i = 0; i < FILM_RATED_COUNT; i++){
-    render(filmListRated,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
-};
-// *Самый комментируемый список фильмов
-const filmListCommented = siteMainElement.querySelector('.js-film-list-commented');
-for (let i = 0; i < FILM_COMMENT_COUNT; i++){
-    render(filmListCommented,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
-};
+    for (let i = 0; i < FILM_PER_PAGE; i++){
+    renderFilmCard(filmList,filteredFilms[i]);
+    };
+    //*Рейтинговый список фильмов
+    const filmListRated = siteMainElement.querySelector('.js-film-list-raited');
+    for (let i = 0; i < FILM_RATED_COUNT; i++){
+        renderFilmCard(filmListRated,filmsRated()[i]);
+    };
+    // *Самый комментируемый список фильмов
+    const filmListCommented = siteMainElement.querySelector('.js-film-list-commented');
+    for (let i = 0; i < FILM_COMMENT_COUNT; i++){
+        renderFilmCard(filmListCommented,filteredFilms[i]);
+    };
 } else{
     render(siteMainElement, emptyList.getElement(), RenderPosition.BEFOREEND)
 }
@@ -137,17 +132,32 @@ for (let i = 0; i < FILM_COMMENT_COUNT; i++){
 
 
 //!-------------------Рендеринг дополнительных карточек---------------------- //
-if (filteredFilms.length >= FILM_COUNT) {
-    let renderFilmsCount = FILM_COUNT;
-    render(filmsContainer, loadMore.getElement(),RenderPosition.BEFOREEND);
+if (filteredFilms.length > 0) {
+    let renderFilmsCount = FILM_PER_PAGE;//Записываем количество фильмов
+    render(filmsContainer, loadMore.getElement(),RenderPosition.BEFOREEND);// Рендерим кнопку
 
-    loadMore.setClickHandler(renderNewCard);
-
-    function renderNewCard() {
-        for (let i = 0; i < FILM_COUNT; i++){
-    render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
-        };
+    const renderLoadMore = () => {
+        loadMore.setClickHandler(loadMoreFilms);
     }
+
+
+    function loadMoreFilms() {
+        filteredFilms
+        .slice(renderFilmsCount, renderFilmsCount+FILM_PER_PAGE)//берем следующие 5 элементов если они есть
+        .forEach((film) => {
+            renderFilmCard(filmList,film);
+        })
+
+        renderFilmsCount += FILM_PER_PAGE;
+        
+        if(renderFilmsCount >= filteredFilms.length){
+            loadMore.getElement().remove()
+            loadMore.removeElement()
+            renderFilmsCount = FILM_PER_PAGE;
+        }
+
+    }
+    renderLoadMore();
 }
 
 // Проблемы с кнопкой
@@ -165,8 +175,7 @@ if (filteredFilms.length >= FILM_COUNT) {
 // ? Как получить кнопку
 // *Общий список фильмов
 menu.setClickHandler((evt) => {
-    console.log(evt.target)
-     siteBody.querySelector('.main-navigation__item--active').classList.remove('main-navigation__item--active');
+    menu.removeActiveLink()
         evt.target.classList.add('main-navigation__item--active');
         const dataSort = evt.target.getAttribute('data-sort');
         filmList.innerHTML = ``;
@@ -181,7 +190,6 @@ menu.setClickHandler((evt) => {
             };
         }else if(dataSort === 'history'){
             for (let i = 0; i < FILM_COUNT; i++){
-                console.log(sortInfo.isWatch)
         render(filmList,new FilmCard(sortInfo.menu.watched[i]).getElement(), RenderPosition.BEFOREEND);
             };
         }else if(dataSort === 'favorites'){
@@ -191,61 +199,25 @@ menu.setClickHandler((evt) => {
         }
 }); 
 
-
-// for (let button of menuButton){
-//     button.addEventListener(`click`,function (evt) {
-//         evt.preventDefault();
-//         siteBody.querySelector('.main-navigation__item--active').classList.remove('main-navigation__item--active');
-//         button.classList.add('main-navigation__item--active');
-//         const dataSort = button.getAttribute('data-sort');
-//         filmList.innerHTML = ``;
-//         if(dataSort === 'all'){
-//         for (let i = 0; i < FILM_COUNT; i++){
-//         render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
-//             };
-//         }else if(dataSort === 'watchlist'){
-//             console.log(new FilmCard(sortInfo.menu.watсhList[0]))
-//              for (let i = 0; i < FILM_COUNT; i++){
-//         render(filmList,new FilmCard(sortInfo.menu.watсhList[i]).getElement(), RenderPosition.BEFOREEND);
-//             };
-//         }else if(dataSort === 'history'){
-//             for (let i = 0; i < FILM_COUNT; i++){
-//                 console.log(sortInfo.isWatch)
-//         render(filmList,new FilmCard(sortInfo.menu.watched[i]).getElement(), RenderPosition.BEFOREEND);
-//             };
-//         }else if(dataSort === 'favorites'){
-//             for (let i = 0; i < FILM_COUNT; i++){
-//         render(filmList,new FilmCard(sortInfo.menu.favorite[i]).getElement(), RenderPosition.BEFOREEND);
-//             };
-//         }
-//     });
-// }
-
-// const sortPanelBattonAll = document.querySelectorAll('.sort__button');
-
-
-// for (let sortPanelButton of sortPanelBattonAll){
-//     sortPanelButton.addEventListener('click', function(evt){
-//         evt.preventDefault();
-//         siteBody.querySelector('.sort__button--active').classList.remove('sort__button--active');
-//         sortPanelButton.classList.add(`sort__button--active`);
-//         const dataSort = sortPanelButton.getAttribute('data-sort');
-//         filmList.innerHTML = ``;
-//         if (dataSort === `default`) {
-//             for (let i = 0; i < FILM_COUNT; i++){
-//         render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
-//             };
-//         }else if (dataSort === `date`) {
-//             for (let i = 0; i < FILM_COUNT; i++){
-//         render(filmList,new FilmCard(sortInfo.sortPanel.sortDate[i]).getElement(), RenderPosition.BEFOREEND);
-//             };
-//         }else if (dataSort === `rating`) {
-//             for (let i = 0; i < FILM_COUNT; i++){
-//         render(filmList,new FilmCard(sortInfo.sortPanel.sortRating[i]).getElement(), RenderPosition.BEFOREEND);
-//             };
-//     }
-// });
-// }
+sortPanel.setClickHandler((evt) => {
+        sortPanel.removeActiveLink()
+        evt.target.classList.add(`sort__button--active`);
+        const dataSort = evt.target.getAttribute('data-sort');
+        filmList.innerHTML = ``;
+        if (dataSort === `default`) {
+            for (let i = 0; i < FILM_COUNT; i++){
+        render(filmList,new FilmCard(filteredFilms[i]).getElement(), RenderPosition.BEFOREEND);
+            };
+        }else if (dataSort === `date`) {
+            for (let i = 0; i < FILM_COUNT; i++){
+        render(filmList,new FilmCard(sortInfo.sortPanel.sortDate[i]).getElement(), RenderPosition.BEFOREEND);
+            };
+        }else if (dataSort === `rating`) {
+            for (let i = 0; i < FILM_COUNT; i++){
+        render(filmList,new FilmCard(sortInfo.sortPanel.sortRating[i]).getElement(), RenderPosition.BEFOREEND);
+            };
+    }
+});
 
 // !-------------------Работа с сортировкой и панелью управления---------------------- //
 
@@ -255,6 +227,14 @@ menu.setClickHandler((evt) => {
 
 
 // !-------------------Работа с popup---------------------- //
+
+const escHandler = (evt) => {
+    if(evt.key === 'Escape' || evt.key === 'Esc'){
+        evt.preventDefault();
+        document.querySelector('.film-details').remove();
+    }
+}
+siteBody.addEventListener(`keydown`, escHandler);
 
 siteBody.addEventListener(`click`,(e) => {
     const target = e.target;

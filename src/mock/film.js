@@ -171,6 +171,13 @@ const generateFilmDescription = () => {
 };
 
 
+const generateCommentsCount = () => {
+  const COMMENT_COUNT = getRandomInteger(0,5);
+  const randomCommentsArr = new Array(COMMENT_COUNT).fill(null).map(() => generateMockComments());
+  return randomCommentsArr;
+}
+
+
 
 
 
@@ -197,7 +204,7 @@ export const dataFilmCard = () => {
     actors : choise(actors,2),
     fullDate: generateFullTextDate(),
     countries: choise(director,2),
-    comments: generateMockComments()
+    comments: generateCommentsCount()
     }
 };
 
