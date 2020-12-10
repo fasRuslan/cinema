@@ -10,7 +10,7 @@
 import SiteMenu from './view/site-menu.js'
 import SortPanel from './view/sort-panel.js'
 
-import FilmTemplate  from './view/film-list/film-template.js'
+import FilmList  from './view/film-list/film-template.js'
 import GeneralFilms from './view/film-list/general-film-list.js'
 import CommentedFilms from './view/film-list/commented-film-list.js'
 import RatedFilms from './view/film-list/rated-film-list.js'
@@ -87,32 +87,31 @@ const filmsRated = () => {
 const filmsCommented = () => {
     return filteredFilms.filter(film => compareValues(`comments`,`asc`).slice(0,FILM_COMMENT_COUNT));
 }
+
+
+const menu = new SiteMenu(sortInfo);
+const sortPanel = new SortPanel();
 const footerStatistic = new FooterStatistic(); 
 const loadMore = new LoadMore();
 const emptyList = new EmptyList();
+const filmList = new FilmList();
+const generalFilms = new GeneralFilms();
+const ratedFilms = new RatedFilms();
+const commentedFilms = new CommentedFilms();
 
 // Добавить ссылку для класса FilmListgit
 
 
 //  Рендерим основные элементы на странице
 const renderMenu = () => {
-    const menu = new SiteMenu(sortInfo);
-    const sortPanel = new SortPanel();
-
     render(siteMainElement, menu.getElement(), RenderPosition.BEFOREEND);
     render(siteMainElement, sortPanel.getElement(), RenderPosition.BEFOREEND);
 
 }
 const renderFilms = () => {
-    const filmTemplate = new FilmTemplate();
-    const generalFilms = new GeneralFilms();
-    const ratedFilms = new RatedFilms();
-    const commentedFilms = new CommentedFilms();
 
     // console.log(filmTemplate.getDomElement())
 
-
-    render(siteMainElement, filmTemplate.getElement(), RenderPosition.BEFOREEND);
     render(filmTemplate.getElement(),generalFilms.getElement(),RenderPosition.BEFOREEND);
 
     render(filmTemplate.getElement(),ratedFilms.getElement(),RenderPosition.BEFOREEND);
@@ -120,7 +119,7 @@ const renderFilms = () => {
 
 }
 renderMenu()
-renderFilms()
+ render(siteMainElement, filmList.getElement(), RenderPosition.BEFOREEND);
 
 
 
