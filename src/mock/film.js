@@ -195,14 +195,14 @@ export const dataFilmCard = () => {
     relase:generateFilmYearRelase(),
     numberOfComments:generateFilmComments(),
     repeating:{
-        isWatсhList:Boolean(getRandomInteger(0,1)),
-        isWatched:Boolean(getRandomInteger(0,1)),
-        isFavorite: Boolean(getRandomInteger(0,1))
+        watchlist:Boolean(getRandomInteger(0,1)),
+        history:Boolean(getRandomInteger(0,1)),
+        favorite: Boolean(getRandomInteger(0,1))
         },
     director:choise(director,1),
     writers : choise(director,getRandomInteger(1,3)),
     actors : choise(actors,2),
-    fullDate: generateFullTextDate(),
+    date: generateFullTextDate(),
     countries: choise(director,2),
     comments: generateCommentsCount()
     }

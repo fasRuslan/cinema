@@ -2,18 +2,18 @@ import Abstract from './abstract.js'
 
 export const createCardFilmTemplate = (film) => {
 
-  const {id,title,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{isWatсhList,isWatched,isFavorite},numberOfComments} = film; 
+  const {id,title,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{watchlist,history,favorite},numberOfComments} = film; 
 
   const isWatchedListButton = () => {
-    return (isWatсhList)?`film-card__controls-item--active`:``
+    return (watchlist)?`film-card__controls-item--active`:``
   };
 
   const isWatchedButton = () => {
-    return (isWatched)?`film-card__controls-item--active`:``
+    return (history)?`film-card__controls-item--active`:``
   };
 
   const isFavoriteButton = () => {
-    return (isFavorite)?`film-card__controls-item--active`:``
+    return (favorite)?`film-card__controls-item--active`:``
   };
 
   const limitFilmDescription = (filmDescription,n) => {
@@ -46,10 +46,18 @@ export default class FilmCard extends Abstract {
   constructor (film) {
     super();
     this._film = film;
+    this._clickHandler = this._clickHandler.bind(this);
   }
 
-  getTemplate(film){
+  getTemplate(){
     return createCardFilmTemplate(this._film)
+  }
+
+  setClickHandler(callback){
+     this._callback.click = callback;
+     for (let card of this.getElement().querySelectorAll('.js-open-popup')){
+       card.addEventListener(`click`,this._clickHandler)
+     }
   }
 }
 
