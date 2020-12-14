@@ -114,4 +114,8 @@ export default class Popup extends Abstract{
     this._callback.click = callback;
     this.getElement().querySelector('.film-details__close-btn').addEventListener(`click`,this._clickHandler)
   }
+
+  popupRemove(){
+    this.getElement().querySelector('.film-details').remove();
+  }
 };

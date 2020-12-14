@@ -18,8 +18,6 @@ const createMenuTemplate = (filters) => {
   const menuItemsTemplate = filters
   .map((filter) => createMenuItemTemplate(filter))
   .join(``);
-
-  console.log(menuItemsTemplate)
   
   
 
@@ -59,11 +57,3 @@ export default class SiteMenu extends Abstract {
 
 };
 
-
-
-
-
-
-/* <a href="#watchlist" class="main-navigation__item" data-sort='watchlist'>Watchlist <span class="main-navigation__item-count">${watсhList.length}</span></a>
-      <a href="#history" class="main-navigation__item" data-sort='history'>History <span class="main-navigation__item-count">${watched.length}</span></a>
-      <a href="#favorites" class="main-navigation__item"  data-sort='favorites'>Favorites <span class="main-navigation__item-count">${favorite.length}</span></a> */

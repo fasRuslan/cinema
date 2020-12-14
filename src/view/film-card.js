@@ -55,9 +55,11 @@ export default class FilmCard extends Abstract {
 
   setClickHandler(callback){
      this._callback.click = callback;
-     for (let card of this.getElement().querySelectorAll('.js-open-popup')){
-       card.addEventListener(`click`,this._clickHandler)
-     }
+    //  for (let card of this.getElement().querySelectorAll('.js-open-popup')){
+    //    card.addEventListener(`click`,this._clickHandler)
+    //  }
+
+    this.getElement().addEventListener(`click`,this._clickHandler)
   }
 }
 
