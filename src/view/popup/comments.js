@@ -3,7 +3,6 @@ import Abstract from '../abstract.js'
 import dayjs from 'dayjs'
     const createCommentTemplate = (comment) => {
 
-      console.log(comment)
 
       const {id, info:{text,author,emotion},commentsTime} = comment;
 

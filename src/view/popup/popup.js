@@ -3,7 +3,20 @@ import Abstract from '../abstract.js'
 
 export const createPopupTemplate = (film = {}) => {
 
-  const {id,title,originalTitle,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{isWatсhList,isWatched,isFavorite},comments,director,writers,actors,fullDate,countries} = film;
+  const {id,title,originalTitle,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{watchlist,history,favorite},comments,director,writers,actors,fullDate,countries} = film;
+
+  const isWatchedListButton = () => {
+    return (watchlist)?`checked`:``
+  };
+
+  const isWatchedButton = () => {
+    return (history)?`checked`:``
+  };
+
+  const isFavoriteButton = () => {
+    return (favorite)?`checked`:``
+  };
+
 
 
     return `<section class="film-details" id=${id}>
@@ -72,13 +85,13 @@ export const createPopupTemplate = (film = {}) => {
       </div>
 
       <section class="film-details__controls">
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${isWatchedListButton()}>
         <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isWatchedButton()}>
         <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${isFavoriteButton()}>
         <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
       </section>
     </div>
