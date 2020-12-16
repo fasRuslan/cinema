@@ -19,7 +19,6 @@ import {
 
 
 
-const FILM_COUNT = 15;
 const FILM_PER_PAGE = 5
 const FILM_RATED_COUNT = 2;
 const FILM_COMMENT_COUNT = 2;
@@ -39,6 +38,7 @@ export default class Movie {
     this._filmCard = new FilmCard();
     this._footerStatistic = null;
     this._emptyList = new EmptyList();
+    this._popupPresenter = new FilmPopupPresenter(this._siteBody)
 
     this._films = null;
     this._sortInfo = null;
@@ -156,8 +156,7 @@ export default class Movie {
 
 
   _showPopup(film) {
-    const popupPresenter = new FilmPopupPresenter(this._siteBody)
-    popupPresenter.init(film)
+    this._popupPresenter.init(film)
   }
 
   _renderLoadMoreButton() {
