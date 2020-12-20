@@ -6,12 +6,14 @@ import SortPanel from '../view/sort-panel.js'
 import FooterStatistic from '../view/footer-statistic.js'
 import EmptyList from '../view/emptyList.js'
 import FilmPopupPresenter from './Popup.js'
+import FilmCardPresenter from './MovieCard'
 
 
 import {
   render,
   RenderPosition,
-  remove
+  remove,
+  updateItem
 } from "../utils/render.js"
 import {
   compareValues
@@ -31,14 +33,16 @@ export default class Movie {
     this._filmsContainer = siteBody.querySelector('.main');
 
 
+
     this._siteMenu = null;
     this._sortPanel = null;
     this._filmList = new FilmList();
     this._loadMore = new LoadMore();
-    this._filmCard = new FilmCard();
     this._footerStatistic = null;
     this._emptyList = new EmptyList();
     this._popupPresenter = new FilmPopupPresenter(this._siteBody)
+    this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._filmPresenter = {}; //создан для того чтобы записывать ссылки на объекты карточек по названию их уникального id
 
     this._films = null;
     this._sortInfo = null;
@@ -46,12 +50,17 @@ export default class Movie {
   }
 
   init(films, sortInfo) {
-    this._films = films.slice();
-    this._sortInfo = sortInfo;
-    this._siteMenu = new SiteMenu(this._sortInfo);
-    this._sortPanel = new SortPanel(this._films);
-    this._footerStatistic = new FooterStatistic(this._films.length);
-    this._renderMovie();
+    this._films = films.slice(); //делаем копию массива с объектами фильмов для карточек для рендеринга
+    this._sourcedFilms = films.slice(); //делаем копию массива с объктами для перерисовки карточек
+    this._sortInfo = sortInfo; // сюда поступает массив состоящий из объектов,   из filters которая генерируется функцией generateFilms(которая фильтрует сначала на наличие соответствию каждого из фильтров isWatchlist,isWatched,isFavorite) которая нужна нам для получения количества фильмов [watchlist тоесть добавленные к просмотру,watched помечает фильм как просмотренный,favoriets добавляет удаляет фильм в избранное]
+    this._siteMenu = new SiteMenu(this._sortInfo); //длину передаем для обработки в инстанс класса меню
+    this._sortPanel = new SortPanel(this._films); //в панель сортировки мы передаем копию данных массива фильмов
+    this._footerStatistic = new FooterStatistic(this._films.length); //мы создаем инстанс класса и передаем в него массив который содержить в себе все фильмы
+    this._renderMovie(); //после чего мы переходим к рендерингу movie
+
+  }
+
+  update() {
 
   }
 
@@ -78,8 +87,7 @@ export default class Movie {
     this._siteMenu.removeActiveLink();
     evt.target.classList.add('main-navigation__item--active');
     let param = evt.target.getAttribute('data-sort');
-
-    filmListContainer.innerHTML = '';
+    this._clearTaskList();
 
     let filteredFilms = this._sortNewMenu(param)
   }
@@ -87,7 +95,7 @@ export default class Movie {
   _sortNewMenu(param) {
     let sorted;
     if (param !== 'all') {
-      sorted = this._films.slice().filter((film) => film.repeating[param] === true);
+      sorted = this._sourcedFilms.slice().filter((film) => film[param] === true);
       sorted.forEach(item => this._renderCard(item, document.querySelector('.js-film-list-main')))
     } else {
       this._renderFilms()
@@ -112,7 +120,7 @@ export default class Movie {
 
 
 
-    filmListContainer.innerHTML = '';
+    this._clearTaskList();
 
     for (let i = 0; i < filteredFilms.length; i++) {
       this._renderCard(filteredFilms[i], filmListContainer);
@@ -149,14 +157,23 @@ export default class Movie {
   }
 
   _renderCard(film, container) {
-    const card = new FilmCard(film);
-    render(container, card.getElement(), RenderPosition.BEFOREEND);
-    card.setClickHandler(() => this._showPopup(film));
+    const card = new FilmCardPresenter(container, this._handleFilmChange);
+    card.init(film)
+    this._filmPresenter[film.id] = card; //записываем инстанс этой карточки в объект под названием id этой карточки 
   }
 
+  _handleFilmChange(updateFilm) {
+    this._films = updateItem(this._sourcedFilms, updateFilm); //возвращает нам список фильмов с обновленным фильмом
+    this._filmPresenter[updateFilm.id].init(updateFilm) //нашли по уникальному id элемент презентера и вызвали у него функцию init в которую передали данные обновленного фильма
+  }
 
-  _showPopup(film) {
-    this._popupPresenter.init(film)
+  _clearTaskList() {
+    Object
+      .values(this._filmPresenter)
+      .forEach((presenter) => presenter.destroy())
+    this._filmPresenter = {};
+    this._renderFilmCount = FILM_PER_PAGE;
+    remove(this._loadMore)
   }
 
   _renderLoadMoreButton() {

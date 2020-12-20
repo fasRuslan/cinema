@@ -1,13 +1,12 @@
 import Abstract from "../abstract";
 
 export const createFilmListTemplate = () => {
-    return `<section class="films">
+  return `<section class="films">
     
     <section class="films-list">
       <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
 
       <div class="films-list__container js-film-list-main"></div>
-
       </section>
 
       <section class="films-list films-list--extra">
@@ -25,9 +24,9 @@ export const createFilmListTemplate = () => {
     </section>`
 };
 
-export default class FilmList extends Abstract{
+export default class FilmList extends Abstract {
 
-  getTemplate(){
+  getTemplate() {
     return createFilmListTemplate();
   }
 

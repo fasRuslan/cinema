@@ -3,23 +3,42 @@ import Abstract from '../abstract.js'
 
 export const createPopupTemplate = (film = {}) => {
 
-  const {id,title,originalTitle,filmPicture,filmDescription,genre,rating,runTime,relase,repeating:{watchlist,history,favorite},comments,director,writers,actors,fullDate,countries} = film;
+  const {
+    id,
+    title,
+    originalTitle,
+    filmPicture,
+    filmDescription,
+    genre,
+    rating,
+    runTime,
+    relase,
+    watchlist,
+    history,
+    favorite,
+    comments,
+    director,
+    writers,
+    actors,
+    fullDate,
+    countries
+  } = film;
 
   const isWatchedListButton = () => {
-    return (watchlist)?`checked`:``
+    return (watchlist) ? `checked` : ``
   };
 
   const isWatchedButton = () => {
-    return (history)?`checked`:``
+    return (history) ? `checked` : ``
   };
 
   const isFavoriteButton = () => {
-    return (favorite)?`checked`:``
+    return (favorite) ? `checked` : ``
   };
 
 
 
-    return `<section class="film-details" id=${id}>
+  return `<section class="film-details" id=${id}>
   <form class="film-details__inner" action="" method="get">
     <div class="film-details__top-container">
       <div class="film-details__close">
@@ -103,32 +122,32 @@ export const createPopupTemplate = (film = {}) => {
 };
 
 
-export default class Popup extends Abstract{
+export default class Popup extends Abstract {
 
-  constructor(film){
+  constructor(film) {
     super();
     this._film = film;
     this._clickHandler = this._clickHandler.bind(this)
   }
 
-  getTemplate(){
+  getTemplate() {
     return createPopupTemplate(this._film);
   }
 
-  setEscHandler(){
+  setEscHandler() {
 
   }
 
-  getCommentsContainer(){
+  getCommentsContainer() {
     return this.getElement().querySelector('.film-details__bottom-container')
   }
 
-  setClickHandler(){
+  setClickHandler() {
     this._callback.click = callback;
-    this.getElement().querySelector('.film-details__close-btn').addEventListener(`click`,this._clickHandler)
+    this.getElement().querySelector('.film-details__close-btn').addEventListener(`click`, this._clickHandler)
   }
 
-  popupRemove(){
+  popupRemove() {
     this.getElement().querySelector('.film-details').remove();
   }
 };

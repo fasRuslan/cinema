@@ -1,22 +1,28 @@
 import Popup from '../view/popup/popup.js'
 import Comments from '../view/popup/comments.js'
+import CommentsPresenter from './Comments'
 import {
   render,
   RenderPosition,
-  remove
+  remove,
+  updateItem
 } from "../utils/render.js"
+
+import dayjs from 'dayjs'
+import {
+  nanoid
+} from 'nanoid'
 
 
 
 
 export default class FilmPopupPresenter {
   constructor(container) {
-
-    this._container = container;
-    this._filmsContainer = this._container.querySelector('.main');
-
+    this._filmsContainer = document.querySelector('body');
+    this._comments = null;
     this._popup = null;
     this._comment = null;
+    this._commentsListData = {}; //Создаем объект для хранения комментариев
   }
 
   init(film) {
@@ -27,38 +33,37 @@ export default class FilmPopupPresenter {
       prevPopup.getElement().remove();
       prevPopup.removeElement()
     }
-
-
     this._renderPopup()
-
   }
 
   _renderPopup() {
-
-    this._container.classList.add('hide-overflow')
+    this._filmsContainer.classList.add('hide-overflow')
     render(this._filmsContainer, this._popup.getElement(), RenderPosition.BEFOREEND)
-
-    const comments = new Comments(this._film.comments);
-    render(this._popup.getCommentsContainer(), comments.getElement(), RenderPosition.BEFOREEND)
 
     this._popup.getElement().addEventListener(`click`, (evt) => this._closePopupClick(evt))
     document.addEventListener(`keyup`, (evt) => this._closePopupESC(evt))
+    this._renderComments()
+  }
+
+  _renderComments() {
+    this._comments = new CommentsPresenter(this._popup.getCommentsContainer())
+    this._comments.init(this._film.comments)
   }
 
   _closePopupClick(evt) {
     if (evt.target.classList.contains('film-details__close-btn')) {
-      this._container.classList.remove('hide-overflow')
-      this._popup.getElement().remove();
-      this._popup.removeElement();
+      this._close();
     }
   }
 
   _closePopupESC(evt) {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      this._popup.getElement().remove();
-      this._popup.removeElement();
-      this._container.classList.remove('hide-overflow')
+      this._close();
     }
+  }
+  _close() {
+    remove(this._popup);
+    this._filmsContainer.classList.remove(`hide-overflow`);
   }
 }

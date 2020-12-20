@@ -1,12 +1,20 @@
 // TODO refactoring commentsTime
 import Abstract from '../abstract.js'
 import dayjs from 'dayjs'
-    const createCommentTemplate = (comment) => {
+const createCommentTemplate = (comment) => {
 
 
-      const {id, info:{text,author,emotion},commentsTime} = comment;
+  const {
+    id,
+    info: {
+      text,
+      author,
+      emotion
+    },
+    commentsTime
+  } = comment;
 
-      return `<li class="film-details__comment" id=${id}>
+  return `<li class="film-details__comment" id=${id}>
             <span class="film-details__comment-emoji">
               <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-smile">
             </span>
@@ -22,31 +30,31 @@ import dayjs from 'dayjs'
 
 };
 
-  const emoji = (emotion) => {
-    switch(emotion){
-        case`smile`:
-          return `smile.png`
-            break;
-        case `sleeping`:
-          return `sleeping.png`
-            break;
-        case  `puke`:
-          return `puke.png`
-            break;
-        case `angry`:
-          return `angry.png`
-            break;
-        case `sleeping`:
-          return `sleeping.png`
-            break;
-    }
-    return null;
+const emoji = (emotion) => {
+  switch (emotion) {
+    case `smile`:
+      return `smile.png`
+      break;
+    case `sleeping`:
+      return `sleeping.png`
+      break;
+    case `puke`:
+      return `puke.png`
+      break;
+    case `angry`:
+      return `angry.png`
+      break;
+    case `sleeping`:
+      return `sleeping.png`
+      break;
   }
+  return null;
+}
 export const createCommentsTemplate = (comments) => {
 
 
-    return `<section class="film-details__comments-wrap">
-      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">4</span></h3>
+  return `<section class="film-details__comments-wrap">
+      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
       <ul class="film-details__comments-list">
             ${comments.map((comment) => createCommentTemplate(comment) ).join(``) }
       </ul>
@@ -83,14 +91,40 @@ export const createCommentsTemplate = (comments) => {
 };
 
 
-export default class Comments extends Abstract{
+export default class Comments extends Abstract {
 
-    constructor(comments){
-      super();
-      this._comments = comments;
-    }
+  constructor(comments) {
+    super();
+    this._comments = comments;
+    this._addCommentEmotion = this._addCommentEmotion.bind(this);
+    this._deleteCommentEmotion = this._deleteCommentEmotion.bind(this);
+  }
 
-    getTemplate(){
-      return createCommentsTemplate(this._comments)
+  getTemplate() {
+    return createCommentsTemplate(this._comments)
+  }
+
+  setAddCommentEmotion(callback) {
+    this._callback.addCommentEmotion = callback;
+    for (let input of this.getElement().querySelectorAll('.film-details__emoji-item')) {
+      input.addEventListener(`change`, this._addCommentEmotion)
     }
+  }
+
+  _addCommentEmotion(evt) {
+    evt.preventDefault();
+    this._callback.addCommentEmotion(evt)
+  }
+
+  setDeleteCommentEmotion(callback) {
+    this._callback.deleteCommentEmotion = callback;
+    for (let btn of this.getElement().querySelectorAll('.film-details__comment-delete')) {
+      btn.addEventListener(`click`, this._deleteCommentEmotion)
+    }
+  }
+
+  _deleteCommentEmotion(evt) {
+    evt.preventDefault();
+    this._callback.deleteCommentEmotion(evt);
+  }
 }
