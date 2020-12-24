@@ -10,12 +10,14 @@ import {
 
 
 export default class FilmCardPresenter {
-  constructor(container, chandeData) {
+  constructor(container, chandeData, commentDataDelete, commentDataAdd) {
 
     this._container = container;
     this._card = null;
     this._changeData = chandeData
-    this._popupPresenter = new FilmPopupPresenter(this._container);
+    this._commentDataDelete = commentDataDelete; //Удаление комментариев
+    this._commentDataAdd = commentDataAdd; //Добавление комментариев
+    this._popupPresenter = new FilmPopupPresenter(this._container, this._commentDataDelete, this._commentDataAdd);
   }
 
   init(film) {
@@ -24,7 +26,7 @@ export default class FilmCardPresenter {
     this._film.comments = this._film.comments.slice(); //делаем копию комментариев для перерисовки комментариев
     this._card = new FilmCard(this._film);
     this._card.setClickHandler(() => this._showPopup(this._film));
-    this._card.setEditClickHandler((evt) => this._clickFilmInfo(evt))
+    this._card.setEditClickHandler((evt) => this._clickFilmInfo(evt));
     if (prevCard) {
       replace(this._card, prevCard)
     } else {
@@ -39,6 +41,10 @@ export default class FilmCardPresenter {
     this._popupPresenter.init(film)
   }
 
+  updatePopup(film) {
+    this._popupPresenter.init(film);
+  }
+
 
   _renderCard() {
     render(this._container, this._card.getElement(), RenderPosition.BEFOREEND);
@@ -49,10 +55,6 @@ export default class FilmCardPresenter {
     this._changeData(Object.assign({}, this._film, {
       [type]: !this._film[type]
     }));
-  }
-
-  _updateCard() {
-
   }
 
   destroy() {

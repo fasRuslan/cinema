@@ -96,24 +96,49 @@ export default class Comments extends Abstract {
   constructor(comments) {
     super();
     this._comments = comments;
-    this._addCommentEmotion = this._addCommentEmotion.bind(this);
+    this._addComment = this._addComment.bind(this);
     this._deleteCommentEmotion = this._deleteCommentEmotion.bind(this);
+    this._sendComment = this._sendComment.bind(this);
   }
 
   getTemplate() {
     return createCommentsTemplate(this._comments)
   }
 
-  setAddCommentEmotion(callback) {
-    this._callback.addCommentEmotion = callback;
+
+  getEmojiLabel() {
+    return this.getElement().querySelector('.film-details__add-emoji-label');
+  }
+
+  getCommentInput() {
+    return this.getElement().querySelector('.film-details__comment-input');
+  }
+
+
+  setCommentSend(callback) {
+    this._callback.sendComment = callback;
+    this.getCommentInput().addEventListener(`keyup`, this._sendComment)
+  }
+
+  _sendComment(evt) {
+    evt.preventDefault();
+    this._callback.sendComment(evt)
+  }
+
+  clearEmojiLabel() {
+    this.getEmojiLabel().innerHTML = '';
+  }
+
+  setAddComment(callback) {
+    this._callback.addComment = callback;
     for (let input of this.getElement().querySelectorAll('.film-details__emoji-item')) {
-      input.addEventListener(`change`, this._addCommentEmotion)
+      input.addEventListener(`change`, this._addComment)
     }
   }
 
-  _addCommentEmotion(evt) {
+  _addComment(evt) {
     evt.preventDefault();
-    this._callback.addCommentEmotion(evt)
+    this._callback.addComment(evt)
   }
 
   setDeleteCommentEmotion(callback) {
@@ -127,4 +152,6 @@ export default class Comments extends Abstract {
     evt.preventDefault();
     this._callback.deleteCommentEmotion(evt);
   }
+
+
 }

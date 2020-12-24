@@ -18,6 +18,9 @@ import {
 import {
   compareValues
 } from "../utils/compareValues.js"
+import {
+  nanoid
+} from 'nanoid'
 
 
 
@@ -42,7 +45,16 @@ export default class Movie {
     this._emptyList = new EmptyList();
     this._popupPresenter = new FilmPopupPresenter(this._siteBody)
     this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handleFilmCommentDelete = this._handleFilmCommentDelete.bind(this);
+    this._handleFilmCommentsAdd = this._handleFilmCommentsAdd.bind(this);
     this._filmPresenter = {}; //создан для того чтобы записывать ссылки на объекты карточек по названию их уникального id
+
+
+    this._filmListMainContainer = this._filmList.getElement().querySelector('.js-film-list-main');
+    this._filmListRatedContainer = this._filmList.getElement().querySelector('.js-film-list-raited');
+    this._filmListCommentedContainer = this._filmList.getElement().querySelector('.js-film-list-commented');
+    this._loadMoreContainer = this._filmList.getElement().querySelector('.films-list')
+    this._siteFooterStatistics = siteBody.querySelector('.footer__statistics');
 
     this._films = null;
     this._sortInfo = null;
@@ -60,43 +72,40 @@ export default class Movie {
 
   }
 
-  update() {
-
-  }
-
   _renderMovie() {
 
     if (this._films.length > 0) {
-      this._renderMenu();
-      this._renderSortPanel();
-      this._renderGeneralFilms();
-      this._renderRatedFilms();
-      this._renderCommentsList();
+      this._renderMenuContainer();
+      this._renderSortPanelContainer();
+      this._renderGeneralFilmsContainer();
+      this._renderRatedFilmsContainer();
+      this._renderCommentsListContainer();
       this._renderFooterStatistic();
     } else {
       this._renderEmptyFilmList();
     }
   }
 
-  _renderMenu() {
+
+
+  _renderMenuContainer() {
     render(this._filmsContainer, this._siteMenu.getElement(), RenderPosition.BEFOREEND)
     this._siteMenu.setClickHandler((evt) => this._sortMenu(evt))
   }
   _sortMenu(evt) {
-    const filmListContainer = document.querySelector('.js-film-list-main')
     this._siteMenu.removeActiveLink();
     evt.target.classList.add('main-navigation__item--active');
     let param = evt.target.getAttribute('data-sort');
     this._clearTaskList();
 
-    let filteredFilms = this._sortNewMenu(param)
+    this._sortNewMenu(param);
   }
 
   _sortNewMenu(param) {
     let sorted;
     if (param !== 'all') {
       sorted = this._sourcedFilms.slice().filter((film) => film[param] === true);
-      sorted.forEach(item => this._renderCard(item, document.querySelector('.js-film-list-main')))
+      sorted.forEach(item => this._renderCard(item, this._filmListMainContainer))
     } else {
       this._renderFilms()
     }
@@ -104,13 +113,12 @@ export default class Movie {
 
 
 
-  _renderSortPanel() {
+  _renderSortPanelContainer() {
     render(this._filmsContainer, this._sortPanel.getElement(), RenderPosition.BEFOREEND)
     this._sortPanel.setClickHandler((evt) => this._sortedFilms(evt))
   }
 
   _sortedFilms(evt) {
-    const filmListContainer = this._filmsContainer.querySelector('.js-film-list-main')
     this._sortPanel.removeActiveLink();
     const target = evt.target;
     target.classList.add('sort__button--active');
@@ -123,7 +131,7 @@ export default class Movie {
     this._clearTaskList();
 
     for (let i = 0; i < filteredFilms.length; i++) {
-      this._renderCard(filteredFilms[i], filmListContainer);
+      this._renderCard(filteredFilms[i], this._filmListMainContainer);
     }
 
   }
@@ -138,7 +146,7 @@ export default class Movie {
     return sorted;
   }
 
-  _renderGeneralFilms() {
+  _renderGeneralFilmsContainer() {
     render(this._filmsContainer, this._filmList.getElement(), RenderPosition.BEFOREEND)
     this._renderFilms()
   }
@@ -153,13 +161,26 @@ export default class Movie {
 
 
   _renderFilmList(from, to) {
-    this._films.slice(from, to).forEach((film) => this._renderCard(film, this._filmList.getElement().querySelector('.js-film-list-main')))
+    this._films.slice(from, to).forEach((film) => this._renderCard(film, this._filmListMainContainer))
   }
 
   _renderCard(film, container) {
-    const card = new FilmCardPresenter(container, this._handleFilmChange);
+    const card = new FilmCardPresenter(container, this._handleFilmChange, this._handleFilmCommentDelete, this._handleFilmCommentsAdd);
     card.init(film)
     this._filmPresenter[film.id] = card; //записываем инстанс этой карточки в объект под названием id этой карточки 
+  }
+  // !Удаление комментариев в popupe
+  _handleFilmCommentDelete(updateFilm, position) {
+    this._films = updateItem(this._sourcedFilms, updateFilm);
+    this._filmPresenter[updateFilm.id].init(updateFilm);
+    this._filmPresenter[updateFilm.id].updatePopup(updateFilm);
+    document.querySelector('.film-details').scrollTop = position;
+  }
+
+  _handleFilmCommentsAdd(updateFilm) {
+    this._films = updateItem(this._sourcedFilms, updateFilm);
+    this._filmPresenter[updateFilm.id].init(updateFilm);
+    this._filmPresenter[updateFilm.id].updatePopup(updateFilm);
   }
 
   _handleFilmChange(updateFilm) {
@@ -169,24 +190,23 @@ export default class Movie {
 
   _clearTaskList() {
     Object
-      .values(this._filmPresenter)
-      .forEach((presenter) => presenter.destroy())
-    this._filmPresenter = {};
-    this._renderFilmCount = FILM_PER_PAGE;
-    remove(this._loadMore)
+      .values(this._filmPresenter) //получаем массив отрендеренных фильмов
+      .forEach((presenter) => presenter.destroy()) //пробегаемся и уничтожаем все фильми
+    this._filmPresenter = {}; //очищаем весь фильм презентер
+    this._renderFilmCount = FILM_PER_PAGE; //сбрасываем счетчик
+    remove(this._loadMore) //удаляем кнопку loadmore
   }
 
   _renderLoadMoreButton() {
-    const loadMoreContainer = this._filmList.getElement().querySelector('.films-list')
-    render(loadMoreContainer, this._loadMore.getElement(), RenderPosition.BEFOREEND)
+    render(this._loadMoreContainer, this._loadMore.getElement(), RenderPosition.BEFOREEND)
     this._loadMore.setClickHandler(() => this._loadMoreFilms(renderFilmsCount));
   }
+
   _loadMoreFilms() {
-    const filmListMainContainer = document.querySelector('.js-film-list-main')
     this._films
       .slice(renderFilmsCount, renderFilmsCount + FILM_PER_PAGE)
       .forEach((film) => {
-        this._renderCard(film, filmListMainContainer);
+        this._renderCard(film, this._filmListMainContainer);
       })
 
 
@@ -201,9 +221,10 @@ export default class Movie {
 
   }
 
-  _renderRatedFilms() {
+  _renderRatedFilmsContainer() {
     for (let i = 0; i < FILM_RATED_COUNT; i++) {
-      this._renderCard(this._filmsRated()[i], this._filmsContainer.querySelector('.js-film-list-raited'));
+      this._filmsRated()[i].id = nanoid();
+      this._renderCard(this._filmsRated()[i], this._filmListRatedContainer);
     };
 
   }
@@ -212,9 +233,10 @@ export default class Movie {
     return this._films.filter(film => compareValues(`rating`, `asc`)).slice(0, FILM_RATED_COUNT);
   }
 
-  _renderCommentsList() {
+  _renderCommentsListContainer() {
     for (let i = 0; i < FILM_RATED_COUNT; i++) {
-      this._renderCard(this._filmsCommented()[i], this._filmsContainer.querySelector('.js-film-list-commented'));
+      this._filmsCommented()[i].id = nanoid();
+      this._renderCard(this._filmsCommented()[i], this._filmListCommentedContainer);
     };
   }
 
@@ -223,12 +245,11 @@ export default class Movie {
   }
 
   _renderFooterStatistic() {
-    const siteFooterStatistics = document.querySelector('.footer__statistics');
-    render(siteFooterStatistics, this._footerStatistic.getElement(), RenderPosition.BEFOREEND);
+    render(this._siteFooterStatistics, this._footerStatistic.getElement(), RenderPosition.BEFOREEND);
   }
 
   _renderEmptyFilmList() {
-    this._renderMenu();
+    this._renderMenuContainer();
     render(this._filmsContainer, this._emptyList.getElement(), RenderPosition.BEFOREEND)
     this._renderFooterStatistic();
   }

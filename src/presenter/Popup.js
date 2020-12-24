@@ -17,12 +17,15 @@ import {
 
 
 export default class FilmPopupPresenter {
-  constructor(container) {
+  constructor(container, commentDataDelete, commentDataAdd) {
     this._filmsContainer = document.querySelector('body');
     this._comments = null;
     this._popup = null;
     this._comment = null;
     this._commentsListData = {}; //Создаем объект для хранения комментариев
+
+    this._commentDataAdd = commentDataAdd;
+    this._commentDataDelete = commentDataDelete;
   }
 
   init(film) {
@@ -46,8 +49,8 @@ export default class FilmPopupPresenter {
   }
 
   _renderComments() {
-    this._comments = new CommentsPresenter(this._popup.getCommentsContainer())
-    this._comments.init(this._film.comments)
+    this._comments = new CommentsPresenter(this._popup.getCommentsContainer(), this._commentDataDelete, this._commentDataAdd)
+    this._comments.init(this._film)
   }
 
   _closePopupClick(evt) {
