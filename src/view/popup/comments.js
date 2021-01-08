@@ -129,7 +129,7 @@ export default class Comments extends Abstract {
     this.getEmojiLabel().innerHTML = '';
   }
 
-  setAddComment(callback) {
+  addEmoji(callback) {
     this._callback.addComment = callback;
     for (let input of this.getElement().querySelectorAll('.film-details__emoji-item')) {
       input.addEventListener(`change`, this._addComment)

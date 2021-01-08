@@ -138,6 +138,10 @@ export default class Popup extends Abstract {
 
   }
 
+  getPopupClass() {
+    return this.getElement().querySelector('.film-details');
+  }
+
   getCommentsContainer() {
     return this.getElement().querySelector('.film-details__bottom-container')
   }

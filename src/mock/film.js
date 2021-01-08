@@ -45,6 +45,7 @@ const generateFilmInfo = () => {
 
   return filmInfo[getRandomIndex];
 };
+// !Количество просмотренных фильмов
 
 // !Genre
 const genres = [

@@ -1,12 +1,11 @@
 import FilmList from '../view/film-list/film-template.js'
 import LoadMore from '../view/load-more.js'
-import FilmCard from '../view/film-card.js'
 import SiteMenu from '../view/site-menu.js'
 import SortPanel from '../view/sort-panel.js'
 import FooterStatistic from '../view/footer-statistic.js'
 import EmptyList from '../view/emptyList.js'
-import FilmPopupPresenter from './Popup.js'
 import FilmCardPresenter from './MovieCard'
+import Profile from '../view/profile.js'
 
 
 import {
@@ -16,24 +15,28 @@ import {
   updateItem
 } from "../utils/render.js"
 import {
-  compareValues
+  compareValues,
+  sortTaskUp
 } from "../utils/compareValues.js"
 import {
   nanoid
 } from 'nanoid'
+import dayjs from 'dayjs'
 
 
 
 const FILM_PER_PAGE = 5
 const FILM_RATED_COUNT = 2;
 const FILM_COMMENT_COUNT = 2;
-let renderFilmsCount = FILM_PER_PAGE;
 
 export default class Movie {
 
   constructor(siteBody) {
     this._siteBody = siteBody;
     this._filmsContainer = siteBody.querySelector('.main');
+    this._profileContainer = siteBody.querySelector('header')
+
+    this._renderFilmsCount = FILM_PER_PAGE;
 
 
 
@@ -43,11 +46,15 @@ export default class Movie {
     this._loadMore = new LoadMore();
     this._footerStatistic = null;
     this._emptyList = new EmptyList();
-    this._popupPresenter = new FilmPopupPresenter(this._siteBody)
+    // this._popupPresenter = new FilmPopupPresenter(this._siteBody)
     this._handleFilmChange = this._handleFilmChange.bind(this);
     this._handleFilmCommentDelete = this._handleFilmCommentDelete.bind(this);
     this._handleFilmCommentsAdd = this._handleFilmCommentsAdd.bind(this);
     this._filmPresenter = {}; //создан для того чтобы записывать ссылки на объекты карточек по названию их уникального id
+
+    this._handlLoadMoreButtonClick = this._handlLoadMoreButtonClick.bind(this)
+    this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
 
     this._filmListMainContainer = this._filmList.getElement().querySelector('.js-film-list-main');
@@ -57,24 +64,25 @@ export default class Movie {
     this._siteFooterStatistics = siteBody.querySelector('.footer__statistics');
 
     this._films = null;
-    this._sortInfo = null;
+    this._filters = null;
 
   }
 
-  init(films, sortInfo) {
+  init(films, filters) {
     this._films = films.slice(); //делаем копию массива с объектами фильмов для карточек для рендеринга
     this._sourcedFilms = films.slice(); //делаем копию массива с объктами для перерисовки карточек
-    this._sortInfo = sortInfo; // сюда поступает массив состоящий из объектов,   из filters которая генерируется функцией generateFilms(которая фильтрует сначала на наличие соответствию каждого из фильтров isWatchlist,isWatched,isFavorite) которая нужна нам для получения количества фильмов [watchlist тоесть добавленные к просмотру,watched помечает фильм как просмотренный,favoriets добавляет удаляет фильм в избранное]
-    this._siteMenu = new SiteMenu(this._sortInfo); //длину передаем для обработки в инстанс класса меню
+    this._filters = filters; // сюда поступает массив состоящий из объектов,   из filters которая генерируется функцией generateFilms(которая фильтрует сначала на наличие соответствию каждого из фильтров isWatchlist,isWatched,isFavorite) которая нужна нам для получения количества фильмов [watchlist тоесть добавленные к просмотру,watched помечает фильм как просмотренный,favoriets добавляет удаляет фильм в избранное]
+    this._siteMenu = new SiteMenu(this._filters); //длину передаем для обработки в инстанс класса меню
     this._sortPanel = new SortPanel(this._films); //в панель сортировки мы передаем копию данных массива фильмов
     this._footerStatistic = new FooterStatistic(this._films.length); //мы создаем инстанс класса и передаем в него массив который содержить в себе все фильмы
+    this._profile = new Profile(this._filters); //просмотренные фильмы для профайла
     this._renderMovie(); //после чего мы переходим к рендерингу movie
 
   }
 
   _renderMovie() {
-
     if (this._films.length > 0) {
+      this._renderProfileContainer()
       this._renderMenuContainer();
       this._renderSortPanelContainer();
       this._renderGeneralFilmsContainer();
@@ -87,48 +95,41 @@ export default class Movie {
   }
 
 
+  updateFilm() {
+    this._clearFilmList();
+    this._renderSortPanelContainer();
+    this._renderGeneralFilmsContainer();
+    this._renderRatedFilmsContainer();
+  }
+
+
+  _renderProfileContainer() {
+    render(this._profileContainer, this._profile.getElement(), RenderPosition.BEFOREEND)
+  }
+
+
 
   _renderMenuContainer() {
     render(this._filmsContainer, this._siteMenu.getElement(), RenderPosition.BEFOREEND)
     this._siteMenu.setClickHandler((evt) => this._sortMenu(evt))
-  }
-  _sortMenu(evt) {
-    this._siteMenu.removeActiveLink();
-    evt.target.classList.add('main-navigation__item--active');
-    let param = evt.target.getAttribute('data-sort');
-    this._clearTaskList();
-
-    this._sortNewMenu(param);
-  }
-
-  _sortNewMenu(param) {
-    let sorted;
-    if (param !== 'all') {
-      sorted = this._sourcedFilms.slice().filter((film) => film[param] === true);
-      sorted.forEach(item => this._renderCard(item, this._filmListMainContainer))
-    } else {
-      this._renderFilms()
-    }
   }
 
 
 
   _renderSortPanelContainer() {
     render(this._filmsContainer, this._sortPanel.getElement(), RenderPosition.BEFOREEND)
-    this._sortPanel.setClickHandler((evt) => this._sortedFilms(evt))
+    this._sortPanel.setSortTypeChangeHandler(this._handleSortTypeChange)
   }
 
-  _sortedFilms(evt) {
+  _handleSortTypeChange(sortType) {
     this._sortPanel.removeActiveLink();
-    const target = evt.target;
-    target.classList.add('sort__button--active');
-    let param = target.getAttribute('data-sort');
+    let param = sortType;
 
     let filteredFilms = this._sortedNewFilms(param);
 
 
 
-    this._clearTaskList();
+    this._clearFilmList();
 
     for (let i = 0; i < filteredFilms.length; i++) {
       this._renderCard(filteredFilms[i], this._filmListMainContainer);
@@ -165,7 +166,7 @@ export default class Movie {
   }
 
   _renderCard(film, container) {
-    const card = new FilmCardPresenter(container, this._handleFilmChange, this._handleFilmCommentDelete, this._handleFilmCommentsAdd);
+    const card = new FilmCardPresenter(container, this._handleFilmChange, this._handleFilmCommentDelete, this._handleFilmCommentsAdd, this._handleModeChange);
     card.init(film)
     this._filmPresenter[film.id] = card; //записываем инстанс этой карточки в объект под названием id этой карточки 
   }
@@ -177,10 +178,11 @@ export default class Movie {
     document.querySelector('.film-details').scrollTop = position;
   }
 
-  _handleFilmCommentsAdd(updateFilm) {
+  _handleFilmCommentsAdd(updateFilm, position) {
     this._films = updateItem(this._sourcedFilms, updateFilm);
     this._filmPresenter[updateFilm.id].init(updateFilm);
     this._filmPresenter[updateFilm.id].updatePopup(updateFilm);
+    document.querySelector('.film-details').scrollTop = position;
   }
 
   _handleFilmChange(updateFilm) {
@@ -188,35 +190,39 @@ export default class Movie {
     this._filmPresenter[updateFilm.id].init(updateFilm) //нашли по уникальному id элемент презентера и вызвали у него функцию init в которую передали данные обновленного фильма
   }
 
-  _clearTaskList() {
+  _clearFilmList() {
     Object
       .values(this._filmPresenter) //получаем массив отрендеренных фильмов
       .forEach((presenter) => presenter.destroy()) //пробегаемся и уничтожаем все фильми
     this._filmPresenter = {}; //очищаем весь фильм презентер
-    this._renderFilmCount = FILM_PER_PAGE; //сбрасываем счетчик
+    this._renderFilmsCount = FILM_PER_PAGE; //сбрасываем счетчик
     remove(this._loadMore) //удаляем кнопку loadmore
   }
 
+  _handleModeChange() {
+    Object
+      .values(this._filmPresenter)
+      .forEach((presenter) => presenter.resetView())
+  }
   _renderLoadMoreButton() {
     render(this._loadMoreContainer, this._loadMore.getElement(), RenderPosition.BEFOREEND)
-    this._loadMore.setClickHandler(() => this._loadMoreFilms(renderFilmsCount));
+    this._loadMore.setClickHandler(() => this._handlLoadMoreButtonClick(this._renderFilmsCount));
   }
 
-  _loadMoreFilms() {
+  _handlLoadMoreButtonClick() {
     this._films
-      .slice(renderFilmsCount, renderFilmsCount + FILM_PER_PAGE)
+      .slice(this._renderFilmsCount, this._renderFilmsCount + FILM_PER_PAGE)
       .forEach((film) => {
         this._renderCard(film, this._filmListMainContainer);
       })
 
 
 
-    renderFilmsCount += FILM_PER_PAGE;
+    this._renderFilmsCount += FILM_PER_PAGE;
 
-    if (renderFilmsCount >= this._films.length) {
-      this._loadMore.getElement().remove()
-      this._loadMore.removeElement()
-      renderFilmsCount = FILM_PER_PAGE;
+    if (this._renderFilmsCount >= this._films.length) {
+      remove(this._loadMore)
+      this._renderFilmsCount = FILM_PER_PAGE;
     }
 
   }
@@ -230,7 +236,7 @@ export default class Movie {
   }
 
   _filmsRated() {
-    return this._films.filter(film => compareValues(`rating`, `asc`)).slice(0, FILM_RATED_COUNT);
+    return this._films.filter(film => compareValues(`rating`, `desc`)).slice(0, FILM_RATED_COUNT);
   }
 
   _renderCommentsListContainer() {
@@ -252,5 +258,24 @@ export default class Movie {
     this._renderMenuContainer();
     render(this._filmsContainer, this._emptyList.getElement(), RenderPosition.BEFOREEND)
     this._renderFooterStatistic();
+  }
+
+  _sortMenu(evt) {
+    this._siteMenu.removeActiveLink();
+    evt.target.classList.add('main-navigation__item--active');
+    let param = evt.target.getAttribute('data-sort');
+    this._clearFilmList();
+
+    this._sortNewMenu(param);
+  }
+
+  _sortNewMenu(param) {
+    let sorted;
+    if (param !== 'all') {
+      sorted = this._sourcedFilms.slice().filter((film) => film[param] === true);
+      sorted.forEach(item => this._renderCard(item, this._filmListMainContainer))
+    } else {
+      this._renderFilms()
+    }
   }
 }

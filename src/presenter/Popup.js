@@ -14,10 +14,15 @@ import {
 } from 'nanoid'
 
 
+// const Mode = {
+//   DEFAULT: `DEFAULT`,
+//   EDITING: `EDITING`
+// }
 
 
-export default class FilmPopupPresenter {
-  constructor(container, commentDataDelete, commentDataAdd) {
+
+export default class {
+  constructor(container, commentDataDelete, commentDataAdd, changeMode) {
     this._filmsContainer = document.querySelector('body');
     this._comments = null;
     this._popup = null;
@@ -26,6 +31,11 @@ export default class FilmPopupPresenter {
 
     this._commentDataAdd = commentDataAdd;
     this._commentDataDelete = commentDataDelete;
+    // this._mode = Mode.DEFAULT;
+    // this._changeMode = changeMode;
+
+
+    this._closePopupClick = this._closePopupClick.bind(this)
   }
 
   init(film) {
@@ -33,8 +43,7 @@ export default class FilmPopupPresenter {
     this._film = film;
     this._popup = new Popup(this._film);
     if (prevPopup) {
-      prevPopup.getElement().remove();
-      prevPopup.removeElement()
+      remove(this._popup);
     }
     this._renderPopup()
   }
@@ -42,15 +51,9 @@ export default class FilmPopupPresenter {
   _renderPopup() {
     this._filmsContainer.classList.add('hide-overflow')
     render(this._filmsContainer, this._popup.getElement(), RenderPosition.BEFOREEND)
-
     this._popup.getElement().addEventListener(`click`, (evt) => this._closePopupClick(evt))
     document.addEventListener(`keyup`, (evt) => this._closePopupESC(evt))
     this._renderComments()
-  }
-
-  _renderComments() {
-    this._comments = new CommentsPresenter(this._popup.getCommentsContainer(), this._commentDataDelete, this._commentDataAdd)
-    this._comments.init(this._film)
   }
 
   _closePopupClick(evt) {
@@ -65,8 +68,20 @@ export default class FilmPopupPresenter {
       this._close();
     }
   }
+
+  _renderComments() {
+    this._comments = new CommentsPresenter(this._popup.getCommentsContainer(), this._commentDataDelete, this._commentDataAdd)
+    this._comments.init(this._film)
+  }
   _close() {
     remove(this._popup);
     this._filmsContainer.classList.remove(`hide-overflow`);
   }
+
+
+  // resetView() {
+  //   if (this._mode !== Mode.DEFAULT) {
+  //     this._renderPopup()
+  //   }
+  // }
 }

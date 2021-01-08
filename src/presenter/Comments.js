@@ -23,29 +23,25 @@ export default class CommentsPresenter {
 
     this._commentDataDelete = commentDataDelete;
     this._commentDataAdd = commentDataAdd;
+
+    this._addComments = this._addComments.bind(this);
+    this._deleteComment = this._deleteComment.bind(this);
   }
 
   init(film) {
     this._filmComments = film.comments;
     this._film = film;
     this._renderComments();
-
-    // addEventListener('keydown', (evt) => this._addComments(evt));
   }
 
   updateComments(evt) {
-    if (evt.key === 'Enter') {
-      this._filmComments = this._filmComments.slice(); //Делаем копию комментс
-      this._filmComments.push(this._commentsListData); //Пушим в конеч новый объект
-      this._comments.getElement().remove()
-      this._renderComments()
-    }
+
   }
 
   _renderComments() {
     this._comments = new Comments(this._filmComments);
     render(this._container, this._comments.getElement(), RenderPosition.BEFOREEND)
-    this._filmComments.forEach((comment) => this._commentsListData[comment.id] = comment);
+    // this._filmComments.forEach((comment) => this._commentsListData[comment.id] = comment);
     this._comments.setAddComment((evt) => this._addComments(evt))
     this._comments.setDeleteCommentEmotion((evt) => this._deleteComment(evt));
   }
@@ -61,6 +57,7 @@ export default class CommentsPresenter {
   }
 
   _addComments(evt) {
+    let position = this.getPositionScroll();
     const emoji = evt.target.value; //не смог вывести в доп функцию
     this._comments.clearEmojiLabel();
     this._comments.getEmojiLabel().insertAdjacentHTML(RenderPosition.BEFOREEND, `<img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji">`)
@@ -81,7 +78,7 @@ export default class CommentsPresenter {
         this._commentsListData = {};
         this._commentDataAdd(Object.assign({}, this._film, {
           comments: this._film.comments
-        }));
+        }), position);
       }
     })
     //! Смайлики то нажимаются то не нажимаются
