@@ -25,7 +25,7 @@ const Mode = {
 
 
 export default class FilmCardPresenter {
-  constructor(container, chandeData, commentDataDelete, commentDataAdd, changeMode) {
+  constructor(container, chandeDataFilm, changeDataPopup, commentDataDelete, commentDataAdd, changeMode) {
 
 
     this._filmsContainer = document.querySelector('body');
@@ -33,19 +33,23 @@ export default class FilmCardPresenter {
     this._card = null;
     this._popupComponent = null;
     this._commentsComponent = null;
-    this._changeData = chandeData
+    this._chandeDataFilmCard = chandeDataFilm;
+    this._changeDataPopup = changeDataPopup;
     this._commentDataDelete = commentDataDelete; //Удаление комментариев
     this._commentDataAdd = commentDataAdd; //Добавление комментариев
 
     this._changeMode = changeMode;
     this._mode = Mode.DEFAULT;
 
-
+    this._closePopupClick = this._closePopupClick.bind(this)
+    this._close = this._close.bind(this);
     this._clickFilmInfo = this._clickFilmInfo.bind(this);
     this.updatePopup = this.updatePopup.bind(this);
     this._deleteComment = this._deleteComment.bind(this);
     this._newEmoji = this._newEmoji.bind(this);
     this._addComment = this._addComment.bind(this);
+    this._changePopup = this._changePopup.bind(this);
+    this._getPositonScroll = this._getPositonScroll.bind(this);
   }
 
   init(film) {
@@ -90,8 +94,9 @@ export default class FilmCardPresenter {
   }
 
   _popupCallback() {
-    document.addEventListener(`keyup`, (evt) => this._closePopupESC(evt))
-    this._popupComponent.getElement().addEventListener(`click`, (evt) => this._closePopupClick(evt))
+    document.addEventListener(`keyup`, (evt) => this._closePopupESC(evt));
+    this._popupComponent.setFilmControl(this._changePopup);
+    this._popupComponent.setClickHandler(this._closePopupClick);
   }
 
   updatePopup(film) {
@@ -120,10 +125,9 @@ export default class FilmCardPresenter {
   }
 
   _closePopupClick(evt) {
-    if (evt.target.classList.contains('film-details__close-btn')) {
-      this._close();
-    }
+    this._close();
     this._mode = Mode.DEFAULT;
+
   }
 
   _renderComments(comments) {
@@ -141,13 +145,13 @@ export default class FilmCardPresenter {
 
   _clickFilmInfo(evt) {
     let type = evt.target.getAttribute('data-type');
-    this._changeData(Object.assign({}, this._film, {
+    this._chandeDataFilmCard(Object.assign({}, this._film, {
       [type]: !this._film[type]
     }));
   }
 
   _deleteComment(evt) {
-    let position = evt.target.offsetTop;
+    let position = this._getPositonScroll();
     let id = evt.target.closest('.film-details__comment').getAttribute('id');
     let commentsIndex = this._film.comments.findIndex((item) => item.id === id);
     this._film.comments.splice(commentsIndex, 1);
@@ -163,7 +167,7 @@ export default class FilmCardPresenter {
   }
 
   _addComment(evt) {
-    let position = document.querySelector('.film-details').scrollTop;
+    let position = this._getPositonScroll();;
     if ((evt.ctrlKey) && (evt.code === `Enter`) && this._commentsComponent.getEmojiLabel().children.length !== 0 && this._commentsComponent.getCommentInput().value !== '') {
       const text = this._commentsComponent.getCommentInput().value;
       let emoji = this._commentsComponent.getEmojiLabel().firstChild.dataset.emoji;
@@ -182,6 +186,18 @@ export default class FilmCardPresenter {
         comments: this._film.comments
       }), position);
     }
+  }
+
+  _getPositonScroll() {
+    return document.querySelector('.film-details').scrollTop;
+  }
+
+  _changePopup(evt) {
+    let type = evt.target.dataset.name;
+    let position = this._getPositonScroll();
+    this._changeDataPopup(Object.assign({}, this._film, {
+      [type]: !this._film[type]
+    }), position)
   }
 
   destroy() {

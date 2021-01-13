@@ -31,23 +31,25 @@ const FILM_COMMENT_COUNT = 2;
 
 export default class Movie {
 
-  constructor(siteBody) {
+  constructor(siteBody, cardModel) {
+    this._cardModel = cardModel;
     this._siteBody = siteBody;
     this._filmsContainer = siteBody.querySelector('.main');
     this._profileContainer = siteBody.querySelector('header')
 
-    this._renderFilmsCount = FILM_PER_PAGE;
+    this._renderCardsCount = FILM_PER_PAGE;
 
 
 
     this._siteMenu = null;
     this._sortPanel = null;
     this._filmList = new FilmList();
-    this._loadMore = new LoadMore();
+    this._loadMoreButtonComponent = null;
     this._footerStatistic = null;
     this._emptyList = new EmptyList();
     // this._popupPresenter = new FilmPopupPresenter(this._siteBody)
     this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handlePopupChange = this._handlePopupChange.bind(this);
     this._handleFilmCommentDelete = this._handleFilmCommentDelete.bind(this);
     this._handleFilmCommentsAdd = this._handleFilmCommentsAdd.bind(this);
     this._filmPresenter = {}; //создан для того чтобы записывать ссылки на объекты карточек по названию их уникального id
@@ -60,7 +62,7 @@ export default class Movie {
     this._filmListMainContainer = this._filmList.getElement().querySelector('.js-film-list-main');
     this._filmListRatedContainer = this._filmList.getElement().querySelector('.js-film-list-raited');
     this._filmListCommentedContainer = this._filmList.getElement().querySelector('.js-film-list-commented');
-    this._loadMoreContainer = this._filmList.getElement().querySelector('.films-list')
+    this._loadMoreButtonComponentContainer = this._filmList.getElement().querySelector('.films-list')
     this._siteFooterStatistics = siteBody.querySelector('.footer__statistics');
 
     this._films = null;
@@ -80,6 +82,10 @@ export default class Movie {
 
   }
 
+  _getCards() {
+    return this._cardModel.getCards();
+  }
+
   _renderMovie() {
     if (this._films.length > 0) {
       this._renderProfileContainer()
@@ -89,8 +95,6 @@ export default class Movie {
       this._renderRatedFilmsContainer();
       this._renderCommentsListContainer();
       this._renderFooterStatistic();
-    } else {
-      this._renderEmptyFilmList();
     }
   }
 
@@ -153,20 +157,34 @@ export default class Movie {
   }
 
   _renderFilms() {
-    this._renderFilmList(0, Math.min(this._films.length, FILM_PER_PAGE))
+    // const cardCount = this._getCards().length;
+    // const newRenderedCardCount = Math.min(cardCount, this._renderCardsCount + FILM_PER_PAGE);
+    // const cards = this._getCards().slice(this._renderCardsCount, newRenderedCardCount);
+    // this._renderFilmList(cards)
 
-    if (this._films.length > FILM_PER_PAGE) {
+    const cards = this._getCards();
+    const cardsCount = this._getCards().length;
+
+    if (cardsCount === 0) {
+      this._renderEmptyFilmList();
+    }
+    this._renderFilmList(cards.slice(0, Math.min(cardsCount, this._renderCardsCount)));
+
+    if (cardsCount > this._renderCardsCount) {
       this._renderLoadMoreButton()
     }
+
   }
 
 
-  _renderFilmList(from, to) {
-    this._films.slice(from, to).forEach((film) => this._renderCard(film, this._filmListMainContainer))
+  _renderFilmList(films) {
+    films
+      .slice()
+      .forEach((film) => this._renderCard(film, this._filmListMainContainer))
   }
 
   _renderCard(film, container) {
-    const card = new FilmCardPresenter(container, this._handleFilmChange, this._handleFilmCommentDelete, this._handleFilmCommentsAdd, this._handleModeChange);
+    const card = new FilmCardPresenter(container, this._handleFilmChange, this._handlePopupChange, this._handleFilmCommentDelete, this._handleFilmCommentsAdd, this._handleModeChange);
     card.init(film)
     this._filmPresenter[film.id] = card; //записываем инстанс этой карточки в объект под названием id этой карточки 
   }
@@ -178,16 +196,26 @@ export default class Movie {
     document.querySelector('.film-details').scrollTop = position;
   }
 
+  // !Добавление комментариев в Popup
   _handleFilmCommentsAdd(updateFilm, position) {
     this._films = updateItem(this._sourcedFilms, updateFilm);
     this._filmPresenter[updateFilm.id].init(updateFilm);
     this._filmPresenter[updateFilm.id].updatePopup(updateFilm);
     document.querySelector('.film-details').scrollTop = position;
   }
-
+  // !Изменение карточки фильма
   _handleFilmChange(updateFilm) {
-    this._films = updateItem(this._sourcedFilms, updateFilm); //возвращает нам список фильмов с обновленным фильмом
-    this._filmPresenter[updateFilm.id].init(updateFilm) //нашли по уникальному id элемент презентера и вызвали у него функцию init в которую передали данные обновленного фильма
+    this._films = updateItem(this._sourcedFilms, updateFilm);
+    this._filmPresenter[updateFilm.id].init(updateFilm)
+  }
+
+  // !Изменение карточки popup
+  _handlePopupChange(updateFilm, position) {
+    debugger
+    this._films = updateItem(this._sourcedFilms, updateFilm);
+    this._filmPresenter[updateFilm.id].init(updateFilm)
+    this._filmPresenter[updateFilm.id].updatePopup(updateFilm)
+    document.querySelector('.film-details').scrollTop = position;
   }
 
   _clearFilmList() {
@@ -195,8 +223,8 @@ export default class Movie {
       .values(this._filmPresenter) //получаем массив отрендеренных фильмов
       .forEach((presenter) => presenter.destroy()) //пробегаемся и уничтожаем все фильми
     this._filmPresenter = {}; //очищаем весь фильм презентер
-    this._renderFilmsCount = FILM_PER_PAGE; //сбрасываем счетчик
-    remove(this._loadMore) //удаляем кнопку loadmore
+    this._renderCardsCount = FILM_PER_PAGE; //сбрасываем счетчик
+    remove(this._loadMoreButtonComponent) //удаляем кнопку loadmore
   }
 
   _handleModeChange() {
@@ -205,24 +233,30 @@ export default class Movie {
       .forEach((presenter) => presenter.resetView())
   }
   _renderLoadMoreButton() {
-    render(this._loadMoreContainer, this._loadMore.getElement(), RenderPosition.BEFOREEND)
-    this._loadMore.setClickHandler(() => this._handlLoadMoreButtonClick(this._renderFilmsCount));
+    if (this._loadMoreButtonComponent !== null) {
+      this._loadMoreButtonComponent = null;
+    }
+
+    this._loadMoreButtonComponent = new LoadMore();
+
+    render(this._loadMoreButtonComponentContainer, this._loadMoreButtonComponent.getElement(), RenderPosition.BEFOREEND)
+    this._loadMoreButtonComponent.setClickHandler(this._handlLoadMoreButtonClick);
   }
 
   _handlLoadMoreButtonClick() {
     this._films
-      .slice(this._renderFilmsCount, this._renderFilmsCount + FILM_PER_PAGE)
+      .slice(this._renderCardsCount, this._renderCardsCount + FILM_PER_PAGE)
       .forEach((film) => {
         this._renderCard(film, this._filmListMainContainer);
       })
 
 
 
-    this._renderFilmsCount += FILM_PER_PAGE;
+    this._renderCardsCount += FILM_PER_PAGE;
 
-    if (this._renderFilmsCount >= this._films.length) {
-      remove(this._loadMore)
-      this._renderFilmsCount = FILM_PER_PAGE;
+    if (this._renderCardsCount >= this._films.length) {
+      remove(this._loadMoreButtonComponent)
+      this._renderCardsCount = FILM_PER_PAGE;
     }
 
   }
