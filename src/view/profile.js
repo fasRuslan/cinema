@@ -8,7 +8,6 @@ const generateProfileTemplate = (filters) => {
   const {
     count
   } = watched;
-  console.log(count)
 
   const generateProfileName = (history) => {
     let name = '';

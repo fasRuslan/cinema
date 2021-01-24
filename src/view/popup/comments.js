@@ -1,6 +1,7 @@
 // TODO refactoring commentsTime
 import Abstract from '../abstract.js'
 import dayjs from 'dayjs'
+import he from 'he'
 const createCommentTemplate = (comment) => {
 
 
@@ -19,7 +20,7 @@ const createCommentTemplate = (comment) => {
               <img src="./images/emoji/${emoji(emotion)}" width="55" height="55" alt="emoji-smile">
             </span>
             <div>
-              <p class="film-details__comment-text">${text}</p>
+              <p class="film-details__comment-text">${he.encode(text)}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${author}</span>
                 <span class="film-details__comment-day">${dayjs(commentsTime).format(`YYYY/MM/DD HH:mm`)}</span>

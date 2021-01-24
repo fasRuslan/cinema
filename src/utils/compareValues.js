@@ -42,3 +42,4 @@ export const sortTaskDown = (taskA, taskB) => {
 
   return dayjs(taskB.dueDate).diff(dayjs(taskA.dueDate));
 };
+// Сортировка по дате и сортировка по рейтингу

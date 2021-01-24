@@ -14,6 +14,11 @@ import {
 
 import dayjs from 'dayjs'
 
+import {
+  UpdateType,
+  UserAction
+} from '../const.js'
+
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -25,7 +30,7 @@ const Mode = {
 
 
 export default class FilmCardPresenter {
-  constructor(container, chandeDataFilm, changeDataPopup, commentDataDelete, commentDataAdd, changeMode) {
+  constructor(container, chandeDataFilm, changeMode) {
 
 
     this._filmsContainer = document.querySelector('body');
@@ -34,9 +39,6 @@ export default class FilmCardPresenter {
     this._popupComponent = null;
     this._commentsComponent = null;
     this._chandeDataFilmCard = chandeDataFilm;
-    this._changeDataPopup = changeDataPopup;
-    this._commentDataDelete = commentDataDelete; //Удаление комментариев
-    this._commentDataAdd = commentDataAdd; //Добавление комментариев
 
     this._changeMode = changeMode;
     this._mode = Mode.DEFAULT;
@@ -145,9 +147,12 @@ export default class FilmCardPresenter {
 
   _clickFilmInfo(evt) {
     let type = evt.target.getAttribute('data-type');
-    this._chandeDataFilmCard(Object.assign({}, this._film, {
-      [type]: !this._film[type]
-    }));
+    this._chandeDataFilmCard(
+      UserAction.UPDATE_CARD,
+      Object.assign({}, this._film, {
+        [type]: !this._film[type]
+      })
+    );
   }
 
   _deleteComment(evt) {
@@ -155,9 +160,11 @@ export default class FilmCardPresenter {
     let id = evt.target.closest('.film-details__comment').getAttribute('id');
     let commentsIndex = this._film.comments.findIndex((item) => item.id === id);
     this._film.comments.splice(commentsIndex, 1);
-    this._commentDataDelete(Object.assign({}, this._film, {
-      comments: this._film.comments
-    }), position)
+    this._chandeDataFilmCard(
+      UserAction.DELETE_COMMENTS,
+      Object.assign({}, this._film, {
+        comments: this._film.comments
+      }), position)
   }
 
   _newEmoji(evt) {
@@ -182,9 +189,11 @@ export default class FilmCardPresenter {
       this._film.comments.push(this._commentsListData);
       this._commentsListData = {};
 
-      this._commentDataAdd(Object.assign({}, this._film, {
-        comments: this._film.comments
-      }), position);
+      this._chandeDataFilmCard(
+        UserAction.ADD_COMMENTS,
+        Object.assign({}, this._film, {
+          comments: this._film.comments
+        }), position);
     }
   }
 
@@ -195,9 +204,11 @@ export default class FilmCardPresenter {
   _changePopup(evt) {
     let type = evt.target.dataset.name;
     let position = this._getPositonScroll();
-    this._changeDataPopup(Object.assign({}, this._film, {
-      [type]: !this._film[type]
-    }), position)
+    this._chandeDataFilmCard(
+      UserAction.UPDATE_POPUP,
+      Object.assign({}, this._film, {
+        [type]: !this._film[type]
+      }), position)
   }
 
   destroy() {

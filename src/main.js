@@ -1,6 +1,10 @@
-// import классов
 import Movie from './presenter/Movie'
 import FilmsCardModel from './model/filmCard.js'
+import FilterModel from './model/filters.js'
+
+import {
+  filter
+} from './const'
 
 
 
@@ -15,16 +19,17 @@ import {
 // create film count
 const FILM_COUNT = 12; //количество фильмов
 
-// данные для фильма 
+
 const films = new Array(FILM_COUNT).fill(null).map(dataFilmCard); //данные каждого фильма
-const filters = generateFilters(films)
+
 
 const cardModel = new FilmsCardModel();
+const filterModel = new FilterModel();
 cardModel.setCards(films)
 
 const siteBody = document.querySelector('body')
 
 
 
-const movie = new Movie(siteBody, cardModel);
-movie.init(films, filters);
+const movie = new Movie(siteBody, cardModel, filterModel);
+movie.init()

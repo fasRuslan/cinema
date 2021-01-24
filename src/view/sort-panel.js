@@ -25,7 +25,7 @@ export default class SortPanel extends Abstract {
   }
 
   removeActiveLink() {
-    this.getElement().querySelector('.sort__button--active').classList.remove('sort__button--active')
+    this.getElement().querySelectorAll('.sort__button--active').forEach((button) => button.classList.remove('sort__button--active'));
   }
 
 
@@ -35,16 +35,10 @@ export default class SortPanel extends Abstract {
     }
 
     evt.preventDefault();
+    this.removeActiveLink();
     evt.target.classList.add('sort__button--active');
     this._callback.sortTypeChange(evt.target.dataset.sort);
   }
-
-  // setClickHandler(callback) {
-  //   this._callback.click = callback;
-  //   for (let btn of this.getElement().querySelectorAll('.sort__button')) {
-  //     btn.addEventListener(`click`, this._clickHandler);
-  //   }
-  // }
 
   setSortTypeChangeHandler(callback) {
     this._callback.sortTypeChange = callback;
