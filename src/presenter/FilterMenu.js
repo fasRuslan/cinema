@@ -4,13 +4,14 @@ import {
   render,
   RenderPosition,
   remove,
-  updateItem
+  updateItem,
+  replace
 } from "../utils/render.js"
 
 import {
   FilterType,
   filter,
-  UpdateType
+  UserAction
 } from '../const'
 
 
@@ -18,16 +19,14 @@ import {
 
 
 export default class FilterMenuPresenter {
-  constructor(filterContainer, filterModel, cardModel, filterTypeChange) {
+  constructor(filterContainer, filterModel, cardModel) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
     this._cardModel = cardModel;
-    this._filterTypeChange = filterTypeChange;
 
     this._currentFilter = null;
     this._filterComponent = null;
 
-    this._sortMenu = this._sortMenu.bind(this)
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
 
@@ -36,22 +35,31 @@ export default class FilterMenuPresenter {
   }
 
   init() {
-    if (this._filterComponent !== null) {
-      this._filterComponent = null;
-    }
+    const prevFilterComponent = this._filterComponent;
     this._currentFilter = this._filterModel.getFilter();
     const filters = this._getFilters();
 
     this._filterComponent = new SiteMenu(filters, this._currentFilter);
     this._filterComponent.setClickHandler(this._handleFilterTypeChange)
 
-    render(this._filterContainer, this._filterComponent.getElement(), RenderPosition.BEFOREEND);
+    if (prevFilterComponent) {
+      replace(this._filterComponent, prevFilterComponent);
+      remove(prevFilterComponent);
+    } else {
+      render(this._filterContainer, this._filterComponent.getElement(), RenderPosition.BEFOREEND);
+    }
+
   }
 
   _getFilters() {
     const card = this._cardModel.getCards();
 
     return [{
+        type: FilterType.ALL,
+        name: `ALL`,
+        count: filter[FilterType.ALL](card).length //все карточки с просмотренными фильмами
+      },
+      {
         type: FilterType.WATCHLIST,
         name: `WATCHLIST`,
         count: filter[FilterType.WATCHLIST](card).length //все карточки с просмотренными фильмами
@@ -74,22 +82,6 @@ export default class FilterMenuPresenter {
   }
 
   _handleFilterTypeChange(filterType) {
-    this._filterTypeChange(
-      filterType
-    );
-  }
-
-  _sortMenu(param) {
-
-  }
-
-  _sortNewMenu(param) {
-    let sorted;
-    if (param !== 'all') {
-      sorted = this._sourcedFilms.slice().filter((film) => film[param] === true);
-      sorted.forEach(item => this._renderCard(item, this._filmListMainContainer))
-    } else {
-      this._renderFilms()
-    }
+    const newFilter = this._filterModel.setFilter(UserAction.FILTER, filterType);
   }
 }

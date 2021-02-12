@@ -8,10 +8,10 @@ const createMenuItemTemplate = (filter, currentFilter) => {
     count
   } = filter;
 
-
   const PanelName = name[0].toUpperCase() + name.slice(1)
 
-  return `<a href="#${name.toLowerCase()}" class="main-navigation__item" data-filter='${name.toLowerCase()}'>${PanelName}<span class="main-navigation__item-count">${count}</span></a>`
+
+  return `<a href="#${name.toLowerCase()}" class="main-navigation__item ${type === currentFilter ? 'main-navigation__item--active':``}" data-filter='${name.toLowerCase()}'>${PanelName}<span class="main-navigation__item-count">${count}</span></a>`
 
 }
 
@@ -23,15 +23,17 @@ const createMenuTemplate = (filters, currentFilter) => {
     .map((filter) => createMenuItemTemplate(filter, currentFilter))
     .join(``);
 
+  // console.log(menuItemsTemplate);
 
 
 
+
+  /* <a href="#all" class="main-navigation__item main-navigation__item--active" data-filter='all'>All movies</a> */
   return `<nav class="main-navigation">
     <div class="main-navigation__items">
-      <a href="#all" class="main-navigation__item main-navigation__item--active" data-filter='all'>All movies</a>
       ${menuItemsTemplate}
     </div>
-    <a href="#stats" class="main-navigation__additional">Stats</a>
+    <a href="#stats" class="main-navigation__additional" data-filter="statistics">Stats</a>
   </nav>`;
 };
 
@@ -51,6 +53,7 @@ export default class SiteMenu extends Abstract {
 
   removeActiveLink() {
     this.getElement().querySelectorAll('.main-navigation__item--active').forEach((button) => button.classList.remove('main-navigation__item--active'));
+    this.getElement().querySelector('.main-navigation__additional').classList.remove('main-navigation__item--active');
   }
 
   setClickHandler(callback) {
@@ -58,6 +61,23 @@ export default class SiteMenu extends Abstract {
     for (let btn of this.getElement().querySelectorAll('.main-navigation__item')) {
       btn.addEventListener(`click`, this._clickHandler);
     }
+  }
+
+  setStatisticHandler(callback) {
+    this._callback.statistic = callback;
+    this.getElement().querySelector('.main-navigation__additional').addEventListener('click', this._statistickHandler)
+  }
+
+  _statistickHandler(evt) {
+    if (evt.target.tagName !== `A`) {
+      return;
+    }
+
+    evt.preventDefault();
+    this.removeActiveLink();
+
+    evt.target.classList.add('main-navigation__item--active');
+    this._callback.statistic(evt.target.dataset.filter);
   }
 
   _clickHandler(evt) {

@@ -96,7 +96,7 @@ export default class Movie {
   }
 
   _renderMovie() {
-    this._renderProfileContainer()
+    this._renderProfileContainer();
     this._renderMenuContainer();
     this._renderSortPanelContainer();
     this._renderGeneralFilmsContainer();
@@ -108,6 +108,7 @@ export default class Movie {
 
   updateFilm() {
     this._clearFilmList();
+    this._renderMenuContainer();
     this._renderSortPanelContainer();
     this._renderGeneralFilmsContainer();
     // this._renderRatedFilmsContainer();
@@ -121,7 +122,41 @@ export default class Movie {
     render(this._profileContainer, this._profile.getElement(), RenderPosition.BEFOREEND)
   }
 
-
+  _renderStatistic(FilterType) {
+    switch (FilterType) {
+      case FilterType.ALL:
+        //скрыть статистику
+        //показать сортировку
+        //показать фильмы
+        //Убрать выделение со статистики
+        break;
+      case FilterType.WATCHLIST:
+        //скрыть статистику
+        //показать сортировку
+        //показать фильмы
+        //Убрать выделение со статистики
+        break;
+      case FilterType.HISTORY:
+        //скрыть статистику
+        //показать сортировку
+        //показать фильмы
+        //Убрать выделение со статистики
+        break;
+      case FilterType.FAVORITE:
+        //скрыть статистику
+        //показать сортировку
+        //показать фильмы
+        //Убрать выделение со статистики
+        break;
+      case FilterType.STATISTICS:
+        //Скрыть доску
+        //скрыть сортировку
+        //Показать статистику
+        break;
+      default:
+        break;
+    }
+  }
 
   _renderMenuContainer() {
     if (this._filterMenu !== null) {
@@ -135,7 +170,7 @@ export default class Movie {
     if (this._currentFilterType === filterType) {
       return;
     }
-
+    this._filterModel.setFilter(filterType);
     this._currentFilterType = filterType;
     this._clearFilmList();
 
@@ -155,6 +190,9 @@ export default class Movie {
         const favoriteCard = this._cardModel.getCards().filter(card => card.favorite);
         this._renderFilmList(favoriteCard);
         break;
+      case FilterType.STATISTICS:
+        console.log(1)
+        // remove(this._sortPanel)
     }
   }
 
@@ -249,7 +287,6 @@ export default class Movie {
     switch (actionType) {
       case UserAction.UPDATE_CARD:
         this._cardModel.updateFilm(actionType, update);
-        this._filterModel.
         break;
       case UserAction.UPDATE_POPUP:
         this._cardModel.updateFilm(actionType, update);
@@ -261,18 +298,20 @@ export default class Movie {
         this._cardModel.updateFilm(actionType, update);
         break;
     }
-    document.querySelector('.film-details').scrollTop = position;
+    if (position) {
+      document.querySelector('.film-details').scrollTop = position;
+    }
   }
 
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UserAction.UPDATE_CARD:
         this._filmPresenter[data.id].init(data);
-        document.querySelector('.film-details').scrollTop = position;
         break;
       case UserAction.UPDATE_POPUP:
         this._filmPresenter[data.id].init(data);
         this._filmPresenter[data.id].updatePopup(data);
+        break;
       case UserAction.ADD_COMMENTS:
         this._filmPresenter[data.id].init(data);
         this._filmPresenter[data.id].updatePopup(data);
@@ -280,6 +319,19 @@ export default class Movie {
       case UserAction.DELETE_COMMENTS:
         this._filmPresenter[data.id].init(data);
         this._filmPresenter[data.id].updatePopup(data);
+        break;
+      case UserAction.FILTER:
+        if (this._currentFilterType === this._filterModel.getFilter()) {
+          return;
+        }
+        this._clearFilmList();
+        this._currentFilterType = this._filterModel.getFilter();
+        if (this._currentFilterType === 'all') {
+          this._renderFilms(this._films);
+          return;
+        }
+        this._films = this._cardModel.getCards().filter((cards) => cards[this._currentFilterType]);
+        this._renderFilmList(this._films);
     }
   }
 

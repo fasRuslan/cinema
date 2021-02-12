@@ -5,6 +5,11 @@ export const UserAction = {
   DELETE_COMMENTS: `DELETE_COMMENTS`
 }
 
+export const MenuItem = {
+  CARDS: `CARDS`,
+  STATISTICS: `STATISTICS`
+}
+
 export const UpdateType = {
   PATCH: `PATCH`, //когда вы делаете обратно совместимые исправления
   MAJOR: `MAJOR`, //когда вы добавляете новую функциональность, не нарушая обратной совместимости.//Сортировки списка
@@ -21,10 +26,12 @@ export const FilterType = {
   ALL: 'all',
   WATCHLIST: 'watchlist',
   HISTORY: 'history',
-  FAVORITE: 'favorite'
+  FAVORITE: 'favorite',
+  STATISTICS: 'statistics'
 }
 
 export const filter = {
+  [FilterType.ALL]: (cards) => cards.filter((card) => card.all),
   [FilterType.WATCHLIST]: (cards) => cards.filter((card) => card.watchlist),
   [FilterType.HISTORY]: (cards) => cards.filter((card) => card.history),
   [FilterType.FAVORITE]: (cards) => cards.filter((card) => card.favorite)

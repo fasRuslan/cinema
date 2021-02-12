@@ -3,7 +3,9 @@ import FilmsCardModel from './model/filmCard.js'
 import FilterModel from './model/filters.js'
 
 import {
-  filter
+  filter,
+  FilterType,
+  MenuItem
 } from './const'
 
 

@@ -201,5 +201,6 @@ export const dataFilmCard = () => {
     date: generateFullTextDate(),
     countries: choise(director, 2),
     comments: generateCommentsCount(),
+    all: true
   }
 };
